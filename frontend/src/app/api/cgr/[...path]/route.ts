@@ -41,9 +41,9 @@ function buildHeaders(req: NextRequest, parts: string[], isMultipart: boolean): 
 /** 통합 핸들러 — GET/POST/PUT/DELETE 모두 동일 로직. */
 async function handler(
   req: NextRequest,
-  { params }: { params: { path: string[] } },
+  { params }: { params: Promise<{ path: string[] }> },
 ) {
-  const parts = params.path ?? [];
+  const parts = (await params).path ?? [];
 
   // ── 관리자 경로 보안 게이트 ──
   // BFF 가 admin 경로에 ADMIN_API_KEY 를 자동 주입하므로, 유효한 admin_session

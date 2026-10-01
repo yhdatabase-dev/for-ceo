@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, use } from 'react';
 import Link from 'next/link';
 
 import SiteHeader from '@/components/layout/SiteHeader';
@@ -68,7 +68,8 @@ function formToText(f: WsPayslipForm): string {
   return L.join('\n');
 }
 
-export default function WsContractPage({ params }: { params: { id: string } }) {
+export default function WsContractPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const caseId = params.id;
 
   const [mounted, setMounted] = useState(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, use } from 'react';
 import Link from 'next/link';
 
 import ContractFormView, {
@@ -27,11 +27,12 @@ import styles from './page.module.css';
  * 다운로드·복사·인쇄는 항상 현재 보기의 최신 편집본을 사용한다.
  * 훅 순서 주의 — 모든 훅은 조기 return 위에서 호출 (이전 hook-order 버그 재발 금지).
  */
-export default function EcContractPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function EcContractPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   const caseId = params.id;
 
   // ─── HOOK ORDER — 모든 훅은 조기 return 보다 위 ───

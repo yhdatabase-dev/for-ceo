@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, use } from 'react';
 import Link from 'next/link';
 
 import SiteHeader from '@/components/layout/SiteHeader';
@@ -22,7 +22,8 @@ import styles from './page.module.css';
  *   - 복사 / 인쇄 / 다운로드 (.txt, .docx)
  *   - 편집 시 dirty 표시 + 원본으로 되돌리기 + 편집 저장
  */
-export default function ScContractPage({ params }: { params: { id: string } }) {
+export default function ScContractPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const caseId = params.id;
 
   const [mounted, setMounted] = useState(false);

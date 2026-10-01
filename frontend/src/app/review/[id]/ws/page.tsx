@@ -9,6 +9,7 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
+  use,
 } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -77,7 +78,8 @@ const VERDICT_STYLES: Record<string, { card: string; text: string }> = {
   적정: { card: styles.verdictOk, text: styles.verdictTextOk },
 };
 
-export default function WsResultPage({ params }: { params: { id: string } }) {
+export default function WsResultPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const caseId = params.id;
 

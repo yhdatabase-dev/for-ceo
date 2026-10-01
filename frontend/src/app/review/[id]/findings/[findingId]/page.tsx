@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, use } from 'react';
 import Link from 'next/link';
 
 import RiskBadge from '@/components/ui/RiskBadge';
@@ -35,11 +35,12 @@ const ORDER: Record<RiskLevel, number> = {
  * Breadcrumb / 헤더 + reason / Compare 박스 / 5탭 / 이전·다음.
  * mock 동작 (SAMPLE_RESULT). 백엔드 연동 시 `GET /api/review/{id}/findings/{findingId}` 로 교체.
  */
-export default function FindingDetailPage({
-  params,
-}: {
-  params: { id: string; findingId: string };
-}) {
+export default function FindingDetailPage(
+  props: {
+    params: Promise<{ id: string; findingId: string }>;
+  }
+) {
+  const params = use(props.params);
   // store 에서 실제 결과 로드, 없으면 mock fallback.
   // 근로계약서(EC) 핀딩은 별도 페이지에서 다룰 예정 — 여기는 취업규칙 결과만.
   const reviewResult = useMemo<ReviewResult>(() => {

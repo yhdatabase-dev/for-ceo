@@ -1,27 +1,9 @@
 # airgap 배포용 — API(requirements-api.txt) + 관리자(streamlit) 의존성 병합.
 # pyhwpx(Windows COM)는 리눅스 빌드 불가라 제외(HWP는 olefile로 자체 파싱).
+-r requirements-api.txt
 
-# ── API 슬림 의존성 (requirements-api.txt 와 동일) ──
-openai>=1.30
-pydantic>=2.5
-pyyaml>=6.0
-python-dotenv>=1.0
-requests>=2.31
-openpyxl>=3.1
-python-docx>=1.1
-pdfplumber>=0.11
-pypdfium2>=4.30        # 스캔 PDF 폴백 렌더 (pdf.py page.to_image)
-Pillow>=10.0
-olefile>=0.46
-fastapi>=0.110
-uvicorn[standard]>=0.30
-python-multipart>=0.0.9
-
-# ── 관리자 대시보드(streamlit) 추가분 ──
+# ── 관리자 대시보드(streamlit) 추가분 — 제거 예정 ──
 streamlit>=1.32
 pandas>=2.0
 plotly>=5.20
 networkx>=3.2
-
-# XML 파싱 보안(XXE/엔티티폭탄 방지) — KISA 시큐어코딩/OWASP
-defusedxml>=0.7

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -22,7 +22,8 @@ import styles from './page.module.css';
  * 우: EditableStructureTable (8섹션 dict 사용자 수정)
  * 하단: "분석 시작" → POST /api/v1/ec/analyze → 결과 페이지로 이동.
  */
-export default function EcReviewPage({ params }: { params: { id: string } }) {
+export default function EcReviewPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const caseId = params.id;
 

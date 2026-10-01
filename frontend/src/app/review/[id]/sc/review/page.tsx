@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -56,7 +56,8 @@ const SECTIONS: Array<{
   { key: '보호및분쟁', title: '4. 보호·해지·분쟁', hint: '안전보건·해지·손해배상·분쟁·근로자성 위장 방지' },
 ];
 
-export default function ScReviewPage({ params }: { params: { id: string } }) {
+export default function ScReviewPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const caseId = params.id;
 

@@ -1,6 +1,6 @@
 # 프론트엔드(Next.js 14) 프로덕션 이미지 — build 후 `next start`.
 # BFF·관리자 로그인이 서버사이드라 정적 export 가 아니라 Node 런타임으로 띄운다.
-FROM node:20-alpine AS builder
+FROM node:24.21.0-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -15,7 +15,7 @@ ARG NEXT_PUBLIC_BASE_PATH=
 ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 RUN npm run build
 
-FROM node:20-alpine AS runner
+FROM node:24.21.0-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 # 비-root 실행(OWASP A05 보안설정오류/컨테이너 하드닝) — node:alpine 내장 'node'(uid 1000) 사용.

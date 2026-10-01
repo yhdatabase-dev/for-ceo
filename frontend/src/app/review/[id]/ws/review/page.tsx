@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -18,7 +18,8 @@ import styles from './page.module.css';
  * 쓰고, 사용자는 AI 가 1차 판단한 계약 유형을 [맞아요/아니에요]로 확인만 한다.
  * '분석 시작' → 확정한 계약 유형으로 /ws/analyze 호출 (모바일·데스크톱 공용).
  */
-export default function WsReviewPage({ params }: { params: { id: string } }) {
+export default function WsReviewPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const caseId = params.id;
 

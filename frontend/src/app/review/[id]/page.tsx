@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Button from '@/components/ui/Button';
@@ -47,11 +47,12 @@ const DEMO_WR_TEXT = [
  * 백엔드 연동 전이라 `SAMPLE_RESULT` mock 을 그대로 사용한다.
  * 추후 `GET /api/review/{id}` 호출 결과로 교체.
  */
-export default function ReviewResultPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function ReviewResultPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   const router = useRouter();
 
   // store 에서 실제 결과 로드. demo 또는 결과 없으면 SAMPLE_RESULT fallback.

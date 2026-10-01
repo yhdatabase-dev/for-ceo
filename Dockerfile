@@ -3,7 +3,7 @@
 # 빌드 컨텍스트는 레포 루트 — 루트의 Excel 마스터 DB 와 backend/ 를 함께 복사한다.
 # master_db.py 가 parents[2](= 컨테이너의 /app)에서 Excel 을 찾으므로 경로 일치.
 
-FROM python:3.12-slim
+FROM python:3.14.7-slim
 
 # 한글 파일명·로그 깨짐 방지
 ENV PYTHONUNBUFFERED=1 \

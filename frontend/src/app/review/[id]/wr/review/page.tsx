@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -27,7 +27,8 @@ import styles from './page.module.css';
  * 수정본을 .txt File 로 감싸 기존 postReviewWorkRules 단일 호출에 그대로 태운다.
  * 성공 시 setCaseResult (status='done') → 기존 결과 페이지(/review/[id]) 라우팅.
  */
-export default function WrReviewPage({ params }: { params: { id: string } }) {
+export default function WrReviewPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const caseId = params.id;
 

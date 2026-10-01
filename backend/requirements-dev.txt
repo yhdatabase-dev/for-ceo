@@ -1,4 +1,7 @@
 # 개발·테스트 전용 의존성 — 운영 이미지에는 설치하지 않는다.
-#   pip install -r requirements-dev.txt
-pytest>=8.0
-httpx>=0.27   # FastAPI TestClient
+#   pip install -r requirements-api.txt -r requirements-dev.txt
+# 버전 기준: Docmost "표준스택" §3.2 개발 의존성 (공통)
+pytest==9.1.1
+pytest-asyncio==1.4.0
+ruff==0.16.9
+# httpx(FastAPI TestClient)는 requirements-api.txt 에 공통 의존성으로 고정

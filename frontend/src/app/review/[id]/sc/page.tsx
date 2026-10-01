@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -41,7 +41,8 @@ const SEV_STYLE: Record<
   LOW: { bg: '#e0f2fe', text: '#0c4a6e' },
 };
 
-export default function ScResultPage({ params }: { params: { id: string } }) {
+export default function ScResultPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const caseId = params.id;
   const [mounted, setMounted] = useState(false);

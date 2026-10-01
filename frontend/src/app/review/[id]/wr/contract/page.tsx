@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 
 import SiteHeader from '@/components/layout/SiteHeader';
@@ -18,7 +18,8 @@ import styles from './page.module.css';
  *
  * 데이터는 검토 결과 findings 에서 결정적으로 구성한다(WrComparisonView).
  */
-export default function WrContractPage({ params }: { params: { id: string } }) {
+export default function WrContractPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const caseId = params.id;
 
   const [mounted, setMounted] = useState(false);

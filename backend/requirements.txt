@@ -1,32 +1,10 @@
-# 취업규칙 검토 AI — 의존성
+# 취업규칙 검토 AI — 로컬 풀스택 의존성 (API + Streamlit 관리자)
+#   API 런타임 버전은 requirements-api.txt 한 곳에서만 고정한다.
+-r requirements-api.txt
 
-# 핵심 ────────────────────────────────────
-openai>=1.30
-pydantic>=2.5
-pyyaml>=6.0
-python-dotenv>=1.0
-
-# 파일 파싱 ──────────────────────────────────
-openpyxl>=3.1
-python-docx>=1.1
-pyhwpx>=0.45
-pypdfium2>=4.30
-
-# 웹 UI (검토 앱 + 관리자 대시보드) ──────
+# ─── Streamlit 관리자 대시보드 — 제거 예정 (관리자 기능 제외 결정) ───
+# 표준 버전 정렬 대상에서 제외. 관리자 제거 시 이 블록과 함께 삭제.
 streamlit>=1.32
-
-# REST API 백엔드 ──────────────────────────
-fastapi>=0.110
-uvicorn[standard]>=0.30
-python-multipart>=0.0.9
-
-# 관리자 대시보드 — 데이터·차트 ─────────
 pandas>=2.0
 plotly>=5.20
 networkx>=3.2
-
-# (선택) 임베딩 로컬 폴백 ─────────────────
-# sentence-transformers>=2.7
-
-# XML 파싱 보안(XXE/엔티티폭탄 방지) — KISA 시큐어코딩/OWASP
-defusedxml>=0.7

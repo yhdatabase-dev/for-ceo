@@ -9,6 +9,7 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
+  use,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
@@ -77,7 +78,8 @@ const VERDICT_STYLES: Record<string, { card: string; text: string }> = {
   적정: { card: styles.verdictOk, text: styles.verdictTextOk },
 };
 
-export default function EcResultPage({ params }: { params: { id: string } }) {
+export default function EcResultPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const caseId = params.id;
 
