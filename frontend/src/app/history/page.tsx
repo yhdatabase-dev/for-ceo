@@ -19,14 +19,12 @@ import styles from './page.module.css';
  * 데이터 — localStorage 기반 (브라우저 단위 영구 보관).
  * 사용자는 새 탭/다른 날 와도 이 페이지에서 자기 검토 목록 봄.
  *
- * 행 항목 클릭 → 결과 페이지로 라우팅 (문서종류에 따라 ec/ws/취업규칙).
+ * 행 항목 클릭 → 결과 페이지로 라우팅 (문서종류에 따라 ec/취업규칙).
  */
 
 const DOC_META: Record<DocumentType, { icon: string; label: string }> = {
   'work-rules': { icon: '📜', label: '취업규칙' },
   'employment-contract': { icon: '📋', label: '근로계약서' },
-  'wage-statement': { icon: '🧾', label: '임금명세서' },
-  'service-provider-contract': { icon: '📝', label: '노무제공자 계약서' },
 };
 
 function resolveResultUrl(
@@ -34,7 +32,6 @@ function resolveResultUrl(
   doc?: DocumentType,
 ): string {
   if (doc === 'employment-contract') return `/review/${caseId}/ec`;
-  if (doc === 'wage-statement') return `/review/${caseId}/ws`;
   return `/review/${caseId}`;
 }
 
@@ -79,7 +76,6 @@ export default function HistoryPage() {
     const out: Record<string, typeof cases> = {
       'work-rules': [],
       'employment-contract': [],
-      'wage-statement': [],
     };
     for (const c of cases) {
       const k = c.documentType ?? 'work-rules';
@@ -155,7 +151,7 @@ export default function HistoryPage() {
           </div>
         ) : (
           <>
-            {(['employment-contract', 'wage-statement', 'work-rules'] as DocumentType[]).map(
+            {(['employment-contract', 'work-rules'] as DocumentType[]).map(
               (doc) => {
                 const list = grouped[doc] ?? [];
                 if (list.length === 0) return null;

@@ -1,9 +1,9 @@
 """API 스모크 테스트 — 앱 기동·인증 게이트·헬스.
 
 LLM 을 호출하지 않는 경로만 검증한다:
-  - 앱이 import·기동되는가 (라우터 12개 등록 포함)
+  - 앱이 import·기동되는가 (라우터 7개 등록 포함)
   - 보호 엔드포인트가 키 없이는 401 인가 (인증 게이트 보증)
-  - 관리자 엔드포인트가 일반 키로는 거부되는가
+  - 제외한 관리자·ws·sc 엔드포인트가 등록되지 않았는가
 """
 from __future__ import annotations
 
@@ -45,31 +45,29 @@ def test_security_headers_present(client):
 
 
 def test_protected_route_requires_key(client):
-    assert client.get(f"{API}/slots").status_code == 401
-    assert client.get(f"{API}/slots", headers={"X-API-Key": "wrong"}).status_code == 401
+    assert client.get(f"{API}/history").status_code == 401
+    assert client.get(f"{API}/history", headers={"X-API-Key": "wrong"}).status_code == 401
 
 
 def test_protected_route_with_key(client):
-    r = client.get(f"{API}/slots", headers=KEY)
+    r = client.get(f"{API}/history", headers=KEY)
     assert r.status_code == 200
 
 
-def test_admin_route_rejects_general_key(client):
-    r = client.get(f"{API}/admin/analytics", headers=KEY)
-    assert r.status_code == 401  # 일반 키 ≠ 관리자 키
-
-
-def test_admin_route_with_admin_key(client):
-    r = client.get(f"{API}/admin/analytics", headers=ADMIN)
-    assert r.status_code == 200
-    body = r.json()
-    assert "total_visits" in body
+@pytest.mark.parametrize(
+    "path",
+    ["/admin/analytics", "/slots", "/master-db/articles", "/ws/catalog", "/sc/extract/start"],
+)
+def test_removed_routes_absent(client, path):
+    """관리자·임금명세서(ws)·노무제공자(sc) 기능 제외 — 라우트가 등록되지 않아야 한다."""
+    r = client.get(f"{API}{path}", headers=ADMIN)
+    assert r.status_code in (404, 405)
 
 
 def test_upload_rejects_disguised_file(client):
     """추출 엔드포인트가 위장 파일(.png 인데 exe 바이트)을 400 으로 거부."""
     r = client.post(
-        f"{API}/ws/extract/start",
+        f"{API}/ec/extract/start",
         headers=KEY,
         files={"file": ("fake.png", b"MZ\x90\x00" + b"\x00" * 32, "image/png")},
     )

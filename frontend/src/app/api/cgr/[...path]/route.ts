@@ -6,17 +6,9 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 
-import { ADMIN_COOKIE, verifySession } from '@/lib/adminAuth';
-
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8503';
 const API_PREFIX = '/api/v1';
 const API_KEY = process.env.CGR_API_KEY ?? '';
-const ADMIN_API_KEY = process.env.CGR_ADMIN_API_KEY ?? '';
-
-/** 관리자 경로 — 별도 키 사용. */
-function isAdminPath(parts: string[]): boolean {
-  return parts[0] === 'admin' || (parts[0] === 'slots' && parts.length === 2);
-}
 
 /**
  * Next.js → 백엔드 헤더 빌더.
@@ -24,16 +16,15 @@ function isAdminPath(parts: string[]): boolean {
  * - multipart: Content-Type 자체를 제외 (fetch 가 새 boundary 로 자동 설정해야 함)
  * - json / 기타: 원본 Content-Type 그대로 forward
  */
-function buildHeaders(req: NextRequest, parts: string[], isMultipart: boolean): HeadersInit {
+function buildHeaders(req: NextRequest, isMultipart: boolean): HeadersInit {
   const h: Record<string, string> = {};
   const ct = req.headers.get('content-type');
   if (ct && !isMultipart) {
     h['Content-Type'] = ct;
   }
-  // 인증 키
-  const key = isAdminPath(parts) ? ADMIN_API_KEY || API_KEY : API_KEY;
-  if (key) {
-    h['X-API-Key'] = key;
+  // 인증 키 — 관리자 기능 제외로 관리자 키 주입 경로는 두지 않는다.
+  if (API_KEY) {
+    h['X-API-Key'] = API_KEY;
   }
   return h;
 }
@@ -45,18 +36,6 @@ async function handler(
 ) {
   const parts = (await params).path ?? [];
 
-  // ── 관리자 경로 보안 게이트 ──
-  // BFF 가 admin 경로에 ADMIN_API_KEY 를 자동 주입하므로, 유효한 admin_session
-  // 쿠키(비밀번호 로그인 발급) 가 없으면 키 주입 전에 401 로 차단한다.
-  if (isAdminPath(parts)) {
-    if (!verifySession(req.cookies.get(ADMIN_COOKIE)?.value)) {
-      return NextResponse.json(
-        { detail: '관리자 인증이 필요합니다. /admin 에서 로그인하세요.' },
-        { status: 401 },
-      );
-    }
-  }
-
   const url = `${API_BASE}${API_PREFIX}/${parts.join('/')}${req.nextUrl.search}`;
 
   const ct = req.headers.get('content-type') ?? '';
@@ -64,7 +43,7 @@ async function handler(
 
   const init: RequestInit = {
     method: req.method,
-    headers: buildHeaders(req, parts, isMultipart),
+    headers: buildHeaders(req, isMultipart),
     // 백엔드가 302 redirect 를 반환하는 경우 (예: /guide/forms/{code}/download 이
     // 로컬 파일 없을 때 외부 정부 사이트로 redirect) — Next.js 의 fetch 가 자동
     // follow 하면 외부 사이트로 직접 호출 가다 실패한다. 'manual' 로 두면 302

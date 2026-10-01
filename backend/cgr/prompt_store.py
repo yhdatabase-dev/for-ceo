@@ -77,13 +77,6 @@ def _invalidate_caches() -> None:
         ecp.get_chat_system_prompt.cache_clear()
     except Exception:
         pass
-    try:
-        from cgr.sc import prompts as scp
-
-        if hasattr(scp.get_analysis_prompt, "cache_clear"):
-            scp.get_analysis_prompt.cache_clear()
-    except Exception:
-        pass
 
 
 def _build_registry() -> list[dict[str, Any]]:
@@ -104,48 +97,6 @@ def _build_registry() -> list[dict[str, Any]]:
         return ecp._CHAT_SYSTEM_BASE
 
     entries.append(_text_entry("ec_chat_base", "근로계약서 챗봇", "근로계약서", _ec_chat_default))
-
-    # 3) 임금명세서 분석 (인라인)
-    def _ws_analyze_default() -> str:
-        from cgr.ws.services import analyze as wsa
-
-        return wsa._SYSTEM_PROMPT
-
-    entries.append(_text_entry("ws_analyze", "임금명세서 분석", "임금명세서", _ws_analyze_default))
-
-    # 4) 임금명세서 양식 생성 (인라인)
-    def _ws_form_default() -> str:
-        from cgr.ws.services import generate as wsg
-
-        return wsg._FORM_SYSTEM_PROMPT
-
-    entries.append(_text_entry("ws_form", "임금명세서 표준양식 생성", "임금명세서", _ws_form_default))
-
-    # 4b) 임금명세서 표준텍스트 생성 (인라인)
-    def _ws_generate_default() -> str:
-        from cgr.ws.services import generate as wsg
-
-        return wsg._SYSTEM_PROMPT
-
-    entries.append(
-        _text_entry("ws_generate", "임금명세서 표준텍스트 생성", "임금명세서", _ws_generate_default)
-    )
-
-    # 5) 노무제공자 구조화 (인라인)
-    def _sc_structure_default() -> str:
-        from cgr.sc import prompts as scp
-
-        return scp.STRUCTURE_PROMPT
-
-    entries.append(_text_entry("sc_structure", "노무계약서 구조화", "노무계약서", _sc_structure_default))
-
-    # 6) 노무제공자 분석 템플릿 (인라인)
-    def _sc_analyze_default() -> str:
-        from cgr.sc import prompts as scp
-
-        return getattr(scp, "_ANALYZE_TEMPLATE", "")
-
-    entries.append(_text_entry("sc_analyze", "노무계약서 분석(템플릿)", "노무계약서", _sc_analyze_default))
 
     # 7) 선택 노출 판정 (인라인)
     def _optional_default() -> str:

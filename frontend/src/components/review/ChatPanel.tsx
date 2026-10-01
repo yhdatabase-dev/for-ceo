@@ -13,7 +13,7 @@ import styles from './ChatPanel.module.css';
  *
  * 결과 페이지 우하단에 floating FAB 으로 떠 있다가 클릭 시 패널 확장.
  * 백엔드 `/ec/chat` 을 호출하나 `analysis_result` 는 `dict` 로 받아 doc-agnostic —
- * 근로계약서/임금명세서/취업규칙/노무제공자 어디서나 동일 동작.
+ * 근로계약서/취업규칙 어디서나 동일 동작.
  *
  * EC 결과 페이지에는 자체 ChatPanel 이 이미 있어 그대로 두고, 본 컴포넌트는
  * WR/WS/SC 결과 페이지의 챗봇 누락을 메우는 용도.
@@ -34,7 +34,7 @@ interface ChatPanelProps {
   analysis?: Record<string, unknown> | null;
   /** 현재 사용자가 보고 있는 항목명 (캐러셀 활성 인덱스의 항목 등). */
   focusedItem?: string;
-  /** "근로계약서" / "임금명세서" / "취업규칙" / "노무제공자 계약서" — 패널 헤더용. */
+  /** "근로계약서" / "취업규칙" — 패널 헤더용. */
   docLabel?: string;
   /** 자주 묻는 질문 칩 — 빈 배열이면 기본값. */
   quickPrompts?: string[];

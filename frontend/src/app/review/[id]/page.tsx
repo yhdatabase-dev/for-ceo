@@ -77,16 +77,6 @@ export default function ReviewResultPage(
       }
       return;
     }
-    // 임금명세서 → 전용 결과 페이지 (이 페이지가 WS 를 WR 로 잘못 렌더하던 버그 방지)
-    if (e.documentType === 'wage-statement' || e.ws) {
-      router.replace(`/review/${params.id}/ws`);
-      return;
-    }
-    // 노무제공자 계약서 → 전용 결과 페이지
-    if (e.documentType === 'service-provider-contract' || e.sc) {
-      router.replace(`/review/${params.id}/sc`);
-      return;
-    }
     // 취업규칙 (기존 흐름)
     if (e.status === 'done' && e.result?.doc === 'work-rules') {
       setResult(e.result.data);

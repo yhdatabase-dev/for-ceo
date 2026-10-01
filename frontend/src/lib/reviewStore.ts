@@ -12,7 +12,6 @@ import type {
   EcReviewOut,
   EcStructuredData,
 } from '@/lib/api/types';
-import type { ScAnalysisResult, ScStructuredData } from '@/lib/api/sc';
 import type { DocumentType, ReviewResult, WorkplaceContext } from '@/types/review';
 
 /** 결과 타입 — 문서 종류별 결과 형태가 다름. */
@@ -70,91 +69,6 @@ export interface EcWorkflow {
    * 백엔드 generate 프롬프트에 사용자 표현이 그대로 흘러간다.
    */
   userOverrides?: Record<string, string>;
-}
-
-/**
- * 임금명세서 (wage statement) — beta 워크플로.
- *
- * 베타는 OCR + LLM 판단형 트랙만 우선 — 사용자가 명세서 파일을 올리면
- *   1) /ws/extract 로 텍스트 추출 (OCR)
- *   2) /ws/analyze 로 11 슬롯 위반 분석
- * 결과는 EC analysis 와 동일 스키마 → 결과 페이지 컴포넌트 재사용.
- *
- * 계산형 룰엔진 트랙(`/ws/inspect`) 은 사용자 확정 단계 UI 가 들어가면 활성화.
- */
-export type WsPhase =
-  | 'idle'
-  | 'extracting'
-  | 'review' // 사용자가 추출 텍스트 확인·수정
-  | 'analyzing'
-  | 'result'
-  | 'error';
-
-export interface WsWorkflow {
-  phase: WsPhase;
-  extractedText?: string;
-  businessSize?: string;
-  workerTypes?: string[];
-  /** 임금명세서 전용 컨텍스트 — /ws/analyze 재호출에 필요 (검토 페이지가 보관). */
-  payPeriodYear?: number;
-  payPeriodMonth?: number;
-  contractType?: string;
-  payCycle?: string;
-  weeklyHours?: number;
-  /**
-   * AI 1차 계약 유형 분류 — 분석 전 확인 화면(WsTypeConfirm)에 사용.
-   * 사용자가 [맞아요/아니에요]로 확정한 contractType 이 분석에 쓰인다.
-   */
-  classify?: {
-    contractType: string; // 정규직 / 기간제 / 단시간 / 일용직
-    payPeriodYear: number | null; // 명세서에 없으면 null (→ 분석에서 누락 위반)
-    payPeriodMonth: number | null;
-    payCycle: string | null; // 월급 / 시급 / 일급 | null
-    docKind: string;
-    reason: string;
-  };
-  /** /ws/analyze 결과 (EC analysis 와 동일 스키마). */
-  analysisResult?: EcAnalysisResult;
-  /** /ws/parse-form 결과 — 현재(업로드) 명세서를 '있는 그대로' 구조화한 표(결과 화면 좌측 HTML 표). */
-  currentForm?: import('@/lib/api/ws').WsPayslipForm;
-  /** /ws/generate 결과 — 수정 반영된 표준 임금명세서 텍스트. */
-  generatedWageText?: string;
-  /** /ws/generate-form 결과 — 공식 서식 칸을 채운 구조화 임금명세서(비주얼 양식 뷰용). */
-  generatedWageForm?: import('@/lib/api/ws').WsPayslipForm;
-  errorMessage?: string;
-  userOverrides?: Record<string, string>;
-}
-
-/**
- * 노무제공자 계약서 (Service Provider Contract) — Phase 17.
- *
- * EC 와 유사한 3단계 워크플로 (extract → structure → analyze).
- * 표준 양식 생성(generate) 단계는 1차 범위 외 — 고용노동부 자료실 외부 URL 안내로 대체.
- */
-export type ScPhase =
-  | 'idle'
-  | 'extracting'
-  | 'structuring'
-  | 'review' // 사용자가 16 슬롯 검토·수정
-  | 'analyzing'
-  | 'result'
-  | 'generating' // /sc/generate 진행 — 수정본 생성
-  | 'contract' // 수정본 완료 — /sc/contract 페이지로
-  | 'error';
-
-export interface ScWorkflow {
-  phase: ScPhase;
-  extractedText?: string;
-  structuredData?: ScStructuredData;
-  /** 노무제공자 직종 분류 — 산재적용_특고16 / 고용보험_노무제공자19 / 플랫폼종사자 / 기타_도급. */
-  workerSubtype?: string;
-  businessSize?: string;
-  analysisResult?: ScAnalysisResult;
-  errorMessage?: string;
-  /** 사용자가 결과 페이지에서 수정본에 담은 보완 표현 (항목 key → 본인 입력 텍스트). */
-  userOverrides?: Record<string, string>;
-  /** /sc/generate 결과 — 원문 보존 + 수정 항목만 반영된 수정본 전문. */
-  generatedText?: string;
 }
 
 /**
@@ -216,10 +130,6 @@ export interface CaseEntry {
   originalKind?: 'image' | 'doc';
   /** 근로계약서 풀 이식 — 4단계 워크플로 상태. EC 일 때만 사용. */
   ec?: EcWorkflow;
-  /** 임금명세서 — 베타. */
-  ws?: WsWorkflow;
-  /** 노무제공자 계약서 (Phase 17). */
-  sc?: ScWorkflow;
   /** 취업규칙 — 추출 텍스트 확인·수정 단계. */
   wr?: WrWorkflow;
 }
@@ -381,9 +291,7 @@ export function setCaseResult(caseId: string, result: ReviewResult) {
     // 워크플로 상태 보존 — 특히 wr.extractedText 가 있어야 결과 화면에서
     // '원문에서 보기'가 노출된다(이게 없으면 원문 보기 버튼이 사라짐).
     wr: prev?.wr,
-    ws: prev?.ws,
     ec: prev?.ec,
-    sc: prev?.sc,
   };
   memory.set(caseId, entry);
   persist(caseId, entry);
@@ -500,31 +408,12 @@ export function updateEc(caseId: string, patch: Partial<EcWorkflow>) {
   persist(caseId, entry);
 }
 
-export function updateWs(caseId: string, patch: Partial<WsWorkflow>) {
-  const prev = ensureCaseEntry(caseId);
-  const prevWs: WsWorkflow = prev.ws ?? { phase: 'idle' };
-  const nextWs: WsWorkflow = { ...prevWs, ...patch };
-  const entry: CaseEntry = { ...prev, ws: nextWs };
-  memory.set(caseId, entry);
-  persist(caseId, entry);
-}
-
 /** WR (취업규칙) 워크플로 부분 갱신 — 추출 텍스트 확인 단계. */
 export function updateWr(caseId: string, patch: Partial<WrWorkflow>) {
   const prev = ensureCaseEntry(caseId);
   const prevWr: WrWorkflow = prev.wr ?? { phase: 'review' };
   const nextWr: WrWorkflow = { ...prevWr, ...patch };
   const entry: CaseEntry = { ...prev, wr: nextWr };
-  memory.set(caseId, entry);
-  persist(caseId, entry);
-}
-
-/** SC 워크플로 부분 갱신 — Phase 17. */
-export function updateSc(caseId: string, patch: Partial<ScWorkflow>) {
-  const prev = ensureCaseEntry(caseId);
-  const prevSc: ScWorkflow = prev.sc ?? { phase: 'idle' };
-  const nextSc: ScWorkflow = { ...prevSc, ...patch };
-  const entry: CaseEntry = { ...prev, sc: nextSc };
   memory.set(caseId, entry);
   persist(caseId, entry);
 }

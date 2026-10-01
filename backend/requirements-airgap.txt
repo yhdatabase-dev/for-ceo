@@ -1,9 +1,4 @@
-# airgap 배포용 — API(requirements-api.txt) + 관리자(streamlit) 의존성 병합.
+# airgap 배포용 — API 런타임 의존성(requirements-api.txt)과 동일.
+#   (Streamlit 관리자 추가분은 관리자 기능 제외 결정으로 삭제 — 2026-10-01)
 # pyhwpx(Windows COM)는 리눅스 빌드 불가라 제외(HWP는 olefile로 자체 파싱).
 -r requirements-api.txt
-
-# ── 관리자 대시보드(streamlit) 추가분 — 제거 예정 ──
-streamlit>=1.32
-pandas>=2.0
-plotly>=5.20
-networkx>=3.2

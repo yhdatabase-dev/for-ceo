@@ -1,6 +1,5 @@
-# 취업규칙 검토 AI — 백엔드+관리자 통합 airgap 이미지 (moellab.info/for-ceo 서버용).
-# backend(uvicorn 8503) 와 admin(streamlit 8502) 가 동일 이미지를 공유하므로
-# streamlit/pandas/plotly 까지 포함한 requirements-airgap.txt 로 설치한다.
+# 취업규칙 검토 AI — 백엔드 airgap 이미지 (moellab.info/for-ceo 서버용).
+# 관리자(streamlit 8502)는 관리자 기능 제외 결정으로 삭제 — API(uvicorn 8503)만 실행.
 FROM python:3.14.7-slim
 
 ENV PYTHONUNBUFFERED=1 \
@@ -32,6 +31,5 @@ RUN groupadd -g 1000 appuser \
     && chown -R appuser:appuser /app
 USER appuser
 
-# 실제 포트/커맨드는 docker-compose 가 override (backend=8503, admin=8502)
-EXPOSE 8503 8502
+EXPOSE 8503
 CMD ["python", "-m", "uvicorn", "cgr.api.main:app", "--host", "0.0.0.0", "--port", "8503"]

@@ -32,8 +32,6 @@ from cgr.ec import prompts  # noqa: E402
 CORPUS_PATH = ROOT / "data" / "topic_corpus.json"
 EC_SLOTS_PATH = ROOT / "data" / "slots" / "atomic_slots_ec.yaml"
 WR_SLOTS_PATH = ROOT / "data" / "slots" / "atomic_slots_v0.yaml"
-WS_SLOTS_PATH = ROOT / "data" / "slots" / "atomic_slots_wage.yaml"
-SC_SLOTS_PATH = ROOT / "data" / "slots" / "atomic_slots_sc.yaml"  # Phase 17
 
 
 # ════════════════════════════════════════════════════════════════
@@ -42,8 +40,6 @@ SC_SLOTS_PATH = ROOT / "data" / "slots" / "atomic_slots_sc.yaml"  # Phase 17
 DOCUMENT_TYPES = [
     ("employment_contract", "근로계약서", 3),
     ("work_rules", "취업규칙", 5),
-    ("wage_statement", "임금명세서", 3),
-    ("service_provider_contract", "노무제공자 계약서", 4),  # Phase 17
 ]
 
 
@@ -500,14 +496,8 @@ def main() -> None:
         ec_codes = seed_check_items_from_yaml(
             conn, doc_ids["employment_contract"], EC_SLOTS_PATH
         )
-        wr_codes = seed_check_items_from_yaml(
+        seed_check_items_from_yaml(
             conn, doc_ids["work_rules"], WR_SLOTS_PATH
-        )
-        ws_codes = seed_check_items_from_yaml(
-            conn, doc_ids["wage_statement"], WS_SLOTS_PATH
-        )
-        sc_codes = seed_check_items_from_yaml(
-            conn, doc_ids["service_provider_contract"], SC_SLOTS_PATH
         )
 
         print("[5/8] 33-mapping (category / topic / law links - EC)")
@@ -518,29 +508,13 @@ def main() -> None:
             topic_id_by_code,
         )
 
-        print("[6/8] WS + SC topic/law links from YAML meta")
-        seed_topic_law_links_from_yaml_meta(
-            conn, WS_SLOTS_PATH, ws_codes, topic_id_by_code
-        )
-        seed_topic_law_links_from_yaml_meta(
-            conn, SC_SLOTS_PATH, sc_codes, topic_id_by_code
-        )
+        # 근로계약서 프롬프트가 v_minimum_wage_current 를 읽으므로 최저임금만 시드.
+        # 임금명세서 전용(임금항목·위반유형·권고안)·노무제공자 슬롯은 제외.
+        print("[7/8] minimum wage master")
+        from scripts.seed_wage_masters import seed_minimum_wage
 
-        print("[7/8] wage masters (min wage / wage items / violations / recs)")
-        from scripts.seed_wage_masters import (
-            seed_minimum_wage,
-            seed_wage_items,
-            seed_violation_types,
-            seed_recommendations,
-        )
         n_mw = seed_minimum_wage(conn)
-        n_wi = seed_wage_items(conn)
-        n_vt = seed_violation_types(conn)
-        n_rec = seed_recommendations(conn)
-        print(
-            f"  minimum_wage: {n_mw}, wage_items: {n_wi}, "
-            f"violations: {n_vt}, recommendations: {n_rec}"
-        )
+        print(f"  minimum_wage: {n_mw}")
 
     print("[8/8] guide DB (영세사업주 꿀팁 카탈로그)")
     from scripts.seed_guide_db import run as seed_guide_run

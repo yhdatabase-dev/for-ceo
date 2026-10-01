@@ -117,12 +117,8 @@ export interface ReviewResult {
  *  홈 화면 입력 — 검토 요청 페이로드
  * ───────────────────────────────────────────── */
 
-/** 문서 종류. Phase 17 — service-provider-contract 추가 (특고·플랫폼 종사자 계약서). */
-export type DocumentType =
-  | 'work-rules'
-  | 'employment-contract'
-  | 'wage-statement'
-  | 'service-provider-contract';
+/** 문서 종류 — 취업규칙·근로계약서 (임금명세서·노무제공자 계약서는 제외). */
+export type DocumentType = 'work-rules' | 'employment-contract';
 
 /** 사업장 컨텍스트 — 백엔드 `WorkplaceContext` 와 매핑. */
 export interface WorkplaceContext {
@@ -136,23 +132,11 @@ export interface WorkplaceContext {
   /** 작업환경측정 대상. */
   workenvMeasurement: boolean | null;
 
-  // ── 근로계약서·임금명세서용 ──────────
+  // ── 근로계약서용 ──────────
   /** 사업장 규모 — '5+' (5인 이상) / '5-' (5인 미만) / null (모름). */
   businessSize: '5+' | '5-' | null;
   /** 근로자 유형 다중 — 정규직/기간제/단시간/일용직/연소자/외국인/외국인-농축어업. */
   workerTypes: string[];
-
-  // ── 임금명세서 전용 ──────────
-  /** 산정 대상 연도 — 최저임금 기준 (V002 룰엔진 키). */
-  payPeriodYear?: number | null;
-  /** 산정 대상 월 — 1~12. */
-  payPeriodMonth?: number | null;
-  /** 계약 유형 단일 선택 (정규직/기간제/단시간/일용직). EC 의 workerTypes 다중과 분리. */
-  contractType?: '정규직' | '기간제' | '단시간' | '일용직' | null;
-  /** 임금 지급 주기. */
-  payCycle?: '월급' | '시급' | '일급' | null;
-  /** 주 소정근로시간 — 단시간 계약자일 때만 의미 있음. */
-  weeklyHours?: number | null;
 }
 
 /** POST /api/review 응답. */

@@ -1,7 +1,7 @@
 /**
  * 검토 결과 화면 E2E 스모크 — 리팩토링(reviewShared 공용화) 회귀 방지.
  *
- * 백엔드 없이 sessionStorage 에 검토 결과를 시드해 EC·WS 결과 페이지가
+ * 백엔드 없이 sessionStorage 에 검토 결과를 시드해 EC 결과 페이지가
  * 올바르게 렌더되는지 검증한다 (수동 프리뷰 검증을 코드화한 것).
  *
  * 보증 항목
@@ -67,49 +67,6 @@ const EC_ENTRY = {
   },
 };
 
-const WS_ENTRY = {
-  caseId: 'e2e-ws',
-  status: 'done',
-  documentType: 'pay-statement',
-  startedAt: 1751000000000,
-  doneAt: 1751000100000,
-  originalFilename: 'e2e임금명세서.txt',
-  ws: {
-    phase: 'result',
-    extractedText:
-      '임금명세서. 성명: 홍○○. 지급일: 2026-02-10. 기본급 2,090,000원. 연장근로수당 100,000원. 소득세 120,000원. 국민연금 80,000원. 실수령액 1,990,000원.',
-    businessSize: '5+',
-    workerTypes: ['정규직'],
-    analysisResult: {
-      riskLevel: '중',
-      overallStatus: '보완필요',
-      overallOpinion: '가산수당 확인이 필요합니다.',
-      finalRecommendations: '연장근로수당 산정 근거를 확인하세요.',
-      results: [
-        {
-          항목: '연장근로수당',
-          적용조건: '5인이상',
-          서면명시의무: '필수',
-          적절성: '부적절',
-          판단이유: "가산 50% 미달 <meta db='DB_가산수당' n='2.1' />",
-          발견내용: '100,000원',
-          법적근거: '근로기준법 제56조',
-          개선권고: '통상시급×1.5×연장시간으로 재산정',
-        },
-        {
-          항목: '기본급',
-          적용조건: '공통',
-          서면명시의무: '필수',
-          적절성: '적절',
-          판단이유: '적정',
-          발견내용: '2,090,000원',
-          법적근거: '근로기준법 시행령 제27조의2',
-          개선권고: '',
-        },
-      ],
-    },
-  },
-};
 
 /** 페이지 로드 전에 sessionStorage 시드 + 크래시 수집기 부착. */
 async function seedAndCollect(page: Page, entry: { caseId: string }) {
@@ -136,18 +93,6 @@ test('EC 결과 페이지 — 마커·법령링크·메타칩 렌더 (데스크�
   await expect(page.locator("[class*='metaHoverChip']").first()).toBeVisible();
   // 원시 <meta db=...> 태그 누출 없음 (parseMetaTags)
   await expect(page.locator('body')).not.toContainText("db='DB_");
-  expect(errors).toEqual([]);
-});
-
-test('WS 결과 페이지 — 백엔드 다운 폴백 포함 렌더', async ({ page }) => {
-  const errors = await seedAndCollect(page, WS_ENTRY);
-  await page.goto('/review/e2e-ws/ws');
-
-  await expect(page.getByText('종합 판정')).toBeVisible();
-  await expect(page.getByText('연장근로수당').first()).toBeVisible();
-  await expect(page.locator("[class*='metaHoverChip']").first()).toBeVisible();
-  await expect(page.locator('body')).not.toContainText("db='DB_");
-  // parse-form API 실패(백엔드 없음)에도 페이지 크래시가 없어야 한다
   expect(errors).toEqual([]);
 });
 

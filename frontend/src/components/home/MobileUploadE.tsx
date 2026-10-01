@@ -52,20 +52,6 @@ const CONF: Record<DocumentType, Conf> = {
     camLabel: '사진으로 찍기',
     fileLabel: '파일 올리기',
   },
-  'wage-statement': {
-    h: '급여명세서를 올려주세요',
-    p: '필수 기재항목이 빠지지 않았는지 확인합니다.',
-    primary: 'cam',
-    camLabel: '사진 촬영',
-    fileLabel: '파일에서 선택',
-  },
-  'service-provider-contract': {
-    h: '계약서를 사진으로 찍어주세요',
-    p: '글자를 자동으로 읽어 위반·누락 항목을 검토합니다.',
-    primary: 'cam',
-    camLabel: '사진 촬영',
-    fileLabel: '파일에서 선택',
-  },
 };
 
 function CamIcon() {

@@ -29,16 +29,6 @@ export const DOC_TYPES: DocType[] = [
     tag: '베타 운영',
   },
   {
-    id: 'wage-statement',
-    icon: 'receipt',
-    title: '임금명세서',
-    subtitle: '월별 급여 명세서',
-    desc: '임금명세서 교부 의무에 따른 필수 기재사항을 검토합니다.',
-    detail: '근로기준법 제48조 + 시행령 제27조의2 검토',
-    available: true,
-    tag: '베타 운영',
-  },
-  {
     id: 'work-rules',
     icon: 'doc',
     title: '취업규칙',
@@ -47,18 +37,6 @@ export const DOC_TYPES: DocType[] = [
     detail: '근로기준법 제93조 필수기재사항 검토',
     available: true,
     tag: '베타 운영',
-  },
-  {
-    id: 'service-provider-contract',
-    icon: 'contract',
-    title: '노무제공자 계약서',
-    subtitle: '특고·플랫폼 종사자 도급계약서',
-    desc: '학습지·보험설계·택배·플랫폼 등 노무제공자 계약서 — 산재·고용보험 가입과 근로자성 위장 방지를 검토합니다.',
-    detail: '산재보험법 제125조 / 고용보험법 제77조의2',
-    available: true,
-    tag: '베타 운영',
-    // 우선 화면에서 숨김 (요청). 코드·라우트·API 는 그대로 — 되살릴 땐 false.
-    hidden: true,
   },
 ];
 

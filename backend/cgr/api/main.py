@@ -23,7 +23,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
-from cgr.api.routes import admin, ec, guide, history, master_db, review, sc, slots, topics, track, wr_classify, ws
+from cgr.api.routes import ec, guide, history, review, topics, track, wr_classify
 from cgr.api.schemas import HealthResponse
 from cgr.log import get_logger, setup as setup_logging
 
@@ -34,18 +34,11 @@ log = get_logger(__name__)
 app = FastAPI(
     title="취업규칙 검토 AI API",
     description=(
-        "감독관 검토 앱(Streamlit 8501)과 관리자 대시보드(Streamlit 8502)의 백엔드 REST API.\n\n"
+        "취업규칙·근로계약서 검토 백엔드 REST API.\n\n"
         "**인증**: 모든 보호 엔드포인트는 `X-API-Key` 헤더 필요.\n\n"
         "**핵심 엔드포인트**:\n"
         "- `POST /api/v1/review` — 사업장 파일 업로드 + 검토 실행\n"
-        "- `GET /api/v1/slots` — 슬롯 카탈로그 조회 (필터)\n"
-        "- `GET /api/v1/master-db/articles/{no}` — 마스터 DB 조 상세\n"
-        "- `GET /api/v1/history` — 검토 이력\n\n"
-        "**관리자 엔드포인트** (PUT/DELETE 류 + ADMIN_API_KEY 필요):\n"
-        "- `PUT /api/v1/slots/{slot_id}` — 슬롯 편집\n"
-        "- `PUT /api/v1/admin/settings` — 시스템 설정 변경\n"
-        "- `DELETE /api/v1/admin/cache` — LLM 캐시 비우기\n\n"
-        "Streamlit 앱과 동일한 슬롯·마스터·이력 데이터를 공유합니다."
+        "- `GET /api/v1/history` — 검토 이력"
     ),
     version="1.0.0",
     docs_url="/docs",
@@ -105,13 +98,8 @@ API_PREFIX = "/api/v1"
 app.include_router(review.router, prefix=API_PREFIX)
 app.include_router(wr_classify.router, prefix=API_PREFIX)
 app.include_router(ec.router, prefix=API_PREFIX)
-app.include_router(slots.router, prefix=API_PREFIX)
-app.include_router(master_db.router, prefix=API_PREFIX)
 app.include_router(history.router, prefix=API_PREFIX)
-app.include_router(admin.router, prefix=API_PREFIX)
 app.include_router(topics.router, prefix=API_PREFIX)
-app.include_router(ws.router, prefix=API_PREFIX)
-app.include_router(sc.router, prefix=API_PREFIX)
 app.include_router(guide.router, prefix=API_PREFIX)
 app.include_router(track.router, prefix=API_PREFIX)
 

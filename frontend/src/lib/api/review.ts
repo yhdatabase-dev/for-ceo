@@ -35,12 +35,6 @@ function mapDocumentType(d: DocumentType): string {
       return 'work_rules';
     case 'employment-contract':
       return 'employment_contract';
-    case 'wage-statement':
-      return 'pay_statement';
-    case 'service-provider-contract':
-      // SC 는 단일 호출 review 엔드포인트를 쓰지 않고 /sc/* 3단계로 분리되어 있어
-      // 이 함수는 호출되지 않지만 타입 완전성을 위해 백엔드 코드명 명시.
-      return 'service_provider_contract';
   }
 }
 
@@ -175,7 +169,7 @@ export async function postReviewRaw(opts: PostReviewOptions): Promise<AnyReviewO
   form.append('chemical_handling', boolToFormValue(context.chemicalHandling));
   form.append('workenv_measurement', boolToFormValue(context.workenvMeasurement));
 
-  // 근로계약서·임금명세서용
+  // 근로계약서용
   form.append('business_size', context.businessSize ?? '');
   form.append('worker_types', context.workerTypes.join(','));
 

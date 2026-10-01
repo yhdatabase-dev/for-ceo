@@ -22,8 +22,6 @@ import WorkplaceForm, {
 
 import { postEcClassify, postEcExtract, postEcStructure } from '@/lib/api/ec';
 import { postWrClassify } from '@/lib/api/review';
-import { postWsClassify, postWsExtract } from '@/lib/api/ws';
-import { postScExtract, postScStructure } from '@/lib/api/sc';
 import { extractAllText, fileToDisplayDataUrl } from '@/lib/uploadPrep';
 import { ApiCallError } from '@/lib/api/client';
 import {
@@ -31,9 +29,7 @@ import {
   setCaseError,
   startCase,
   updateEc,
-  updateSc,
   updateWr,
-  updateWs,
 } from '@/lib/reviewStore';
 
 import type { DocumentType } from '@/types/review';
@@ -68,17 +64,6 @@ const MOBILE_DOC_CARDS: MobileDocCard[] = [
     ),
   },
   {
-    id: 'wage-statement',
-    title: '임금명세서',
-    sub: '월별 급여 명세서',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-        <path d="M5 3h14v18l-3-2-3 2-3-2-2 2V3z" />
-        <path d="M9 8h6M9 12h6" />
-      </svg>
-    ),
-  },
-  {
     id: 'work-rules',
     title: '취업규칙',
     sub: '사업장 단위 규정',
@@ -88,19 +73,6 @@ const MOBILE_DOC_CARDS: MobileDocCard[] = [
         <path d="M8 8h8M8 12h8M8 16h5" />
       </svg>
     ),
-  },
-  {
-    id: 'service-provider-contract',
-    title: '노무제공자 계약서',
-    sub: '특고·플랫폼 종사자 계약서',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-        <path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3M8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3z" />
-        <path d="M2 20c.6-3 3-5 6-5s5.4 2 6 5M14 15c2.5 0 4.5 2 5 5" />
-      </svg>
-    ),
-    // 우선 화면에서 숨김 (요청). 코드·라우트·API 는 그대로 — 되살릴 땐 false.
-    hidden: true,
   },
 ];
 
@@ -135,12 +107,8 @@ export default function HomePage() {
     return () => mq.removeEventListener('change', sync);
   }, []);
 
-  // work-rules / employment-contract / wage-statement / service-provider-contract 모두 허용.
-  const docReady =
-    docType === 'work-rules' ||
-    docType === 'employment-contract' ||
-    docType === 'wage-statement' ||
-    docType === 'service-provider-contract';
+  // work-rules / employment-contract 허용.
+  const docReady = docType === 'work-rules' || docType === 'employment-contract';
   const canSubmit = files.length > 0 && docReady && !submitting;
 
   const startReview = async () => {
@@ -219,70 +187,6 @@ export default function HomePage() {
         // LoadingScreen 이 status='done' 을 트리거로 다음 라우트로 보내므로,
         // EC 풀 이식에선 result 가 아닌 phase='review' 가 그 신호.
         // → LoadingScreen 측 폴링에서 phase 를 보고 /ec/review 로 라우팅.
-      } else if (docType === 'service-provider-contract') {
-        // 노무제공자 계약서 (Phase 17) — extract + structure 자동 연쇄.
-        //   1) /sc/extract   파일 → 텍스트
-        //   2) /sc/structure 텍스트 → 4섹션·16슬롯 JSON
-        //   3) (사용자 검토) → /sc/analyze (LoadingScreen 후 sc/review 페이지)
-        updateSc(caseId, { phase: 'extracting' });
-        const scText = await extractAllText(files, postScExtract, {
-          caseId,
-          service: '노무계약서',
-        });
-
-        updateSc(caseId, {
-          phase: 'structuring',
-          extractedText: scText,
-        });
-        const scStructured = await postScStructure(scText);
-
-        updateSc(caseId, {
-          phase: 'review',
-          structuredData: scStructured.structured_data,
-          businessSize: ctx.businessSize ?? '',
-        });
-        // LoadingScreen 은 sc.phase='review' 를 보고 /review/[id]/sc/review 로 라우팅.
-      } else if (docType === 'wage-statement') {
-        // 임금명세서 — extract 후 'OCR 수정' 단계를 빼고, AI 가 계약 유형을
-        // 1차 판단한 뒤 분석 직전에 [맞아요/아니에요]로 확인만 받는다.
-        //   1) /ws/extract  파일 → 텍스트 (이미지면 OCR, 여러 장 지원)
-        //   2) /ws/classify 계약 유형 AI 추정 (실패해도 흐름 계속)
-        //   3) /review/[id]/ws/review — 계약 유형 확인 → '분석 시작' 시 /ws/analyze.
-        updateWs(caseId, { phase: 'extracting' });
-        const wsText = await extractAllText(files, postWsExtract, {
-          caseId,
-          service: '임금명세서',
-        });
-        const wsCls = await postWsClassify(wsText).catch(() => null);
-
-        updateWs(caseId, {
-          phase: 'review',
-          extractedText: wsText,
-          businessSize: ctx.businessSize ?? '',
-          // 계약 유형·산정기간·지급주기 모두 AI 가 명세서에서 읽어낸다(홈 폼에서
-          // 안 물음). 명세서에 없으면 null/undefined → 분석 단계에서 '필수
-          // 기재사항 누락' 위반으로 잡힌다. 분류 실패 시에만 폼 기본값 fallback.
-          contractType: wsCls?.contract_type ?? undefined,
-          // 백엔드 슬롯 분기용 worker_types — 분류된 계약 유형 단일값.
-          workerTypes: wsCls ? [wsCls.contract_type] : ctx.workerTypes,
-          payPeriodYear: wsCls?.pay_period_year ?? undefined,
-          payPeriodMonth: wsCls?.pay_period_month ?? undefined,
-          payCycle: wsCls?.pay_cycle ?? undefined,
-          weeklyHours: wsCls?.weekly_hours ?? undefined,
-          ...(wsCls
-            ? {
-                classify: {
-                  contractType: wsCls.contract_type,
-                  payPeriodYear: wsCls.pay_period_year,
-                  payPeriodMonth: wsCls.pay_period_month,
-                  payCycle: wsCls.pay_cycle,
-                  docKind: wsCls.doc_kind,
-                  reason: wsCls.reason,
-                },
-              }
-            : {}),
-        });
-        // LoadingScreen 은 ws.phase='review' 를 보고 /review/[id]/ws/review 로 라우팅.
       } else {
         // 취업규칙 — 추출 후 사용자 확인 단계로.
         //   1) /ec/extract (범용 parse_to_text — docx/hwp/pdf/txt/이미지) 파일 → 텍스트

@@ -82,45 +82,6 @@ const DOC_MACROS: Record<DocumentType, Partial<Record<Macro, { heading: string; 
       ],
     },
   },
-  'wage-statement': {
-    extract: {
-      heading: '임금명세서를 꼼꼼히 살펴보고 있어요',
-      steps: [
-        { n: 1, title: '문서 추출', desc: '명세서 텍스트·표 데이터 추출' },
-        { n: 2, title: '필수 항목 식별', desc: '교부 의무 항목 매칭' },
-      ],
-    },
-    analyze: {
-      heading: '법령을 비교하고 결과를 정리하고 있어요',
-      steps: [
-        { n: 1, title: '법령 비교', desc: '근로기준법 제48조 등 위반 여부 확인' },
-        { n: 2, title: '리포트 생성', desc: '적절·보완필요·부적절 분류 + 시정안 작성' },
-      ],
-    },
-  },
-  'service-provider-contract': {
-    extract: {
-      heading: '노무제공자 계약서를 꼼꼼히 살펴보고 있어요',
-      steps: [
-        { n: 1, title: '문서 추출', desc: '이미지·DOCX·PDF 텍스트로 변환' },
-        { n: 2, title: '슬롯 구조화', desc: '4섹션·16슬롯으로 정리' },
-      ],
-    },
-    analyze: {
-      heading: '법령을 비교하고 결과를 정리하고 있어요',
-      steps: [
-        { n: 1, title: '법령 비교', desc: '산재보험법·고용보험법·근로자성 위장 검토' },
-        { n: 2, title: '리포트 생성', desc: '적절·보완필요·부적절 분류 + 시정안 작성' },
-      ],
-    },
-    generate: {
-      heading: '표준 계약서 초안을 작성하고 있어요',
-      steps: [
-        { n: 1, title: '양식 정리', desc: '표준 양식 적용' },
-        { n: 2, title: '본문 작성', desc: '분석 결과·보완사항 반영' },
-      ],
-    },
-  },
 };
 
 /** phase 한 개 → 매크로 (완료 phase 는 그 단계의 매크로로 본다: result→analyze, contract→generate). */
@@ -133,7 +94,7 @@ function phaseToMacro(p: string | undefined): Macro {
 /** 케이스 전체에서 가장 앞선 매크로를 고른다(활성 워크플로는 하나뿐이라 안전). */
 function macroOf(entry: CaseEntry | null | undefined): Macro {
   if (!entry) return 'extract';
-  const phases = [entry.ec?.phase, entry.wr?.phase, entry.ws?.phase, entry.sc?.phase];
+  const phases = [entry.ec?.phase, entry.wr?.phase];
   let m: Macro = 'extract';
   for (const p of phases) {
     const pm = phaseToMacro(p);
@@ -239,20 +200,6 @@ export function LoadingScreen({ reviewId }: LoadingScreenProps) {
       if (curPhase === 'review') return go(`/review/${reviewId}/ec/review`);
       if (curPhase === 'result') return go(`/review/${reviewId}/ec`);
       if (curPhase === 'contract') return go(`/review/${reviewId}/ec/contract`);
-
-      // 임금명세서 (beta) — ws.phase 분기.
-      const wsPhase = entry.ws?.phase;
-      if (wsPhase === 'review') return go(`/review/${reviewId}/ws/review`);
-      if (wsPhase === 'result') return go(`/review/${reviewId}/ws`);
-      if (wsPhase === 'error') return fail(entry.ws?.errorMessage || '임금명세서 분석 실패');
-
-      // 노무제공자 계약서 (Phase 17) — sc.phase 분기.
-      const scPhase = entry.sc?.phase;
-      if (scPhase === 'review') return go(`/review/${reviewId}/sc/review`);
-      // 수정본 완료 — 'result' 보다 먼저 체크 (둘 다 거쳐가는 흐름에서 contract 우선).
-      if (scPhase === 'contract') return go(`/review/${reviewId}/sc/contract`);
-      if (scPhase === 'result') return go(`/review/${reviewId}/sc`);
-      if (scPhase === 'error') return fail(entry.sc?.errorMessage || '노무제공자 계약서 분석 실패');
 
       // 취업규칙 — 추출 텍스트 확인 단계. 'analyzing' 은 라우팅하지 않음
       // (분석 완료 시 아래 status='done' 분기가 /review/[id] 로 보냄).

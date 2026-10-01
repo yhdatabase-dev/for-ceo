@@ -9,8 +9,6 @@
 - 결과 가독성 유지 — `홍길동` → `홍○○` 같이 형태는 유지.
 
 **적용 위치** (LLM 호출 직전):
-- `cgr.ws.services.analyze.run()` — 임금명세서 분석
-- `cgr.ws.services.generate.run()` — 표준 명세서 생성
 - `cgr.ec.services.analyze.run()` — 근로계약서 분석
 - `cgr.ec.services.structure.run()` — 8섹션 구조화
 - `cgr.ec.services.chat.run()` — 후속 챗봇
