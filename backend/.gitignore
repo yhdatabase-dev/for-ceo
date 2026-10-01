@@ -1,0 +1,30 @@
+# ── 시크릿·환경 ──
+.env
+.env.*
+!.env.example
+
+# ── 파이썬 ──
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── venv ──
+venv/
+.venv/
+
+# ── 데이터·업로드 ──
+data/
+uploads/
+logs/
+*.db
+*.sqlite
+*.log
+*.log.*
+
+# ── IDE ──
+.vscode/
+.idea/
+.DS_Store

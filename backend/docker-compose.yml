@@ -1,0 +1,49 @@
+# ═══════════════════════════════════════════════════════════════════
+# for-ceo.v2 backend 배포 스택 (API 만, PostgreSQL 은 외부)
+# ═══════════════════════════════════════════════════════════════════
+# 사용법
+#   docker compose up -d              # 백그라운드 기동
+#   docker compose logs -f api        # API 로그 실시간
+#   docker compose down               # 정지
+#   docker compose down -v            # 정지 + 볼륨 삭제
+#
+# 로그 정책
+#   - stderr (Docker json-file 캡처): docker logs 조회
+#   - 파일 저장 (CGR_LOG_FILE 지정 시): 호스트 ./logs/ 에 유지 (재기동해도 유지)
+#
+# 주의
+#   - PostgreSQL 은 이 컴포즈에 포함되지 않음. 외부 DB 사용.
+#   - .env 의 CGR_PG_DSN 으로 외부 DB 주소 지정.
+# ═══════════════════════════════════════════════════════════════════
+
+services:
+  app:                                    
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cgr-api              
+    restart: unless-stopped
+    env_file: .env                   
+    environment:
+      CGR_LOG_FILE: /app/logs/app.log    
+    ports:                            
+      - "${CGR_API_PORT:-8503}:8503"
+    volumes:
+      - cgr-data:/app/data     
+      - ./logs:/app/logs
+    healthcheck:           
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8503/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    logging:       
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "10"
+        tag: "cgr-api/{{.Name}}"
+
+volumes:          
+  cgr-data:
+    name: cgr-data
