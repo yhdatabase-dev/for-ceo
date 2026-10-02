@@ -27,7 +27,7 @@ sys.path.insert(0, str(ROOT))
 import yaml  # noqa: E402
 
 from app.repositories import base as db  # noqa: E402
-from app.services.ai.ec import prompts  # noqa: E402
+from app.services.ec import prompts  # noqa: E402
 
 CORPUS_PATH = ROOT / "data" / "topic_corpus.json"
 EC_SLOTS_PATH = ROOT / "data" / "slots" / "atomic_slots_ec.yaml"

@@ -100,7 +100,7 @@ def build_entry_from_report(report) -> dict[str, Any]:
     cgr.models.Report 와 cgr.verdict.classify 사용.
     LLM 호출 없이 메모리 데이터만으로 구성.
     """
-    from app.services.ai.wr.verdict import classify
+    from app.services.wr.verdict import classify
 
     by_status: Counter[str] = Counter()
     by_severity: Counter[str] = Counter()

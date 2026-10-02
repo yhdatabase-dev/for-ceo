@@ -14,8 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from app.core.config import assert_ready  # noqa: E402
-from app.services.ai.wr.reporter import save_report  # noqa: E402
-from app.services.ai.wr.review import review_file  # noqa: E402
+from app.services.wr.reporter import save_report  # noqa: E402
+from app.services.wr.review import review_file  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:

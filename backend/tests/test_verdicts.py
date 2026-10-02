@@ -5,8 +5,8 @@
 """
 from __future__ import annotations
 
-from app.services.ai.wr import verdict as wr
-from app.services.ai.ec import verdict as ec
+from app.services.wr import verdict as wr
+from app.services.ec import verdict as ec
 from app.schemas.wr.values import ArticleResult, Extraction, Finding, MasterValue, Report
 
 
