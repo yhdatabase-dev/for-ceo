@@ -17,8 +17,8 @@ MVP_ROOT = SCRIPT_DIR.parent
 if str(MVP_ROOT) not in sys.path:
     sys.path.insert(0, str(MVP_ROOT))
 
-from cgr.master_db import get_master_db
-from cgr.parsers.hwp import parse_hwp
+from app.repositories.wr.master import get_master_db
+from app.integrations.parsers.hwp import parse_hwp
 
 # refresh_law_penalty_2026 import 가 win32 stdout 을 utf-8 로 재설정하므로 여기선 별도 처리 불필요
 from mvp.scripts.refresh_law_penalty_2026 import (

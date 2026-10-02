@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from cgr import log as cgr_log
+from app.core import logging as cgr_log
 
 
 @pytest.fixture(autouse=True)
@@ -66,7 +66,7 @@ def test_real_handler_formats_ctx():
 
 # ─── 전파 — 잡·스레드풀 ───
 def test_start_job_propagates_context():
-    from cgr.api import jobs
+    from app.core import jobs
 
     cgr_log.bind_context(rid="jobrid", case="JOB-CASE")
     job_id = jobs.start_job(lambda: cgr_log.current_context())
@@ -109,7 +109,7 @@ def test_plain_thread_does_not_leak_context():
 # ─── 미들웨어 — X-Request-Id ───
 def test_middleware_sets_request_id():
     from fastapi.testclient import TestClient
-    from cgr.api.main import app
+    from app.main import app
 
     with TestClient(app) as c:
         r1 = c.get("/health")
@@ -128,7 +128,7 @@ def test_no_print_style_kwargs_in_log_calls():
     import re
     from pathlib import Path
 
-    root = Path(__file__).resolve().parents[1] / "cgr"
+    root = Path(__file__).resolve().parents[1] / "app"
     # log.<level>( ... file= ... ) — 호출 괄호 안에서만 매치 (중첩 1단계 허용)
     pat = re.compile(
         r"log\.(debug|info|warning|error|exception|critical)\s*\("

@@ -29,8 +29,8 @@ sys.path.insert(0, str(ROOT_MVP))
 
 from openai import OpenAI  # noqa: E402
 
-from cgr import llm_cache  # noqa: E402
-from cgr.config import get_api_key, get_llm_model  # noqa: E402
+from app.integrations.llm import cache as llm_cache  # noqa: E402
+from app.core.config import get_api_key, get_llm_model  # noqa: E402
 
 WORKSPACE = Path(r"C:\Users\Jini\Desktop\1. 영세사업장 자율점검")
 CORPUS_PATH = (

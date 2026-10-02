@@ -29,10 +29,10 @@ MVP_ROOT = SCRIPT_DIR.parent
 if str(MVP_ROOT) not in sys.path:
     sys.path.insert(0, str(MVP_ROOT))
 
-from cgr import llm_cache
-from cgr.config import get_api_key, get_llm_model
-from cgr.master_db import COLS, get_master_db
-from cgr.parsers.hwp import parse_hwp
+from app.integrations.llm import cache as llm_cache
+from app.core.config import get_api_key, get_llm_model
+from app.repositories.wr.master import COLS, get_master_db
+from app.integrations.parsers.hwp import parse_hwp
 
 from mvp.scripts.compare_body_2026 import (
     normalize_for_compare,

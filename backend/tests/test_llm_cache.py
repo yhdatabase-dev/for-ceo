@@ -1,7 +1,7 @@
 """LLM 캐시 테스트 — '같은 입력 → 같은 출력' 재현성의 물리적 토대."""
 from __future__ import annotations
 
-from cgr import llm_cache
+from app.integrations.llm import cache as llm_cache
 
 
 SCHEMA = {"type": "object", "properties": {"a": {"type": "string"}}}

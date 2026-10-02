@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 from PIL import Image, ImageDraw
 
-from cgr.parsers import pdf as pdf_parser
+from app.integrations.parsers import pdf as pdf_parser
 
 
 def _make_scanned_pdf(path: Path, n_pages: int) -> None:
@@ -40,7 +40,7 @@ def test_scanned_pdf_triggers_ocr_fallback_in_page_order(tmp_path, monkeypatch):
         calls.append(img_bytes)
         return f"PAGE_{len(calls)}"
 
-    monkeypatch.setattr("cgr.parsers.image.ocr_image_bytes", fake_ocr)
+    monkeypatch.setattr("app.integrations.parsers.image.ocr_image_bytes", fake_ocr)
 
     out = pdf_parser.parse_pdf(p)
 
@@ -55,7 +55,7 @@ def test_scanned_pdf_over_page_cap_rejected(tmp_path, monkeypatch):
     _make_scanned_pdf(p, 3)
     monkeypatch.setattr(pdf_parser, "_MAX_OCR_PAGES", 2)
     monkeypatch.setattr(
-        "cgr.parsers.image.ocr_image_bytes",
+        "app.integrations.parsers.image.ocr_image_bytes",
         lambda *a, **k: pytest.fail("상한 초과 시 OCR 이 호출되면 안 됨"),
     )
     with pytest.raises(ValueError, match="페이지 이하만"):
@@ -85,7 +85,7 @@ def test_digital_pdf_does_not_hit_ocr(tmp_path, monkeypatch):
 
     monkeypatch.setattr("pdfplumber.open", lambda _p: _FakePdf())
     monkeypatch.setattr(
-        "cgr.parsers.image.ocr_image_bytes",
+        "app.integrations.parsers.image.ocr_image_bytes",
         lambda *a, **k: pytest.fail("디지털 PDF 에서 OCR 이 호출되면 안 됨"),
     )
     out = pdf_parser.parse_pdf(tmp_path / "any.pdf")

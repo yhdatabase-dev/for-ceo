@@ -5,7 +5,7 @@ RFP SFR-003(비식별 후 외부 전달)의 코드 측 안전망. 패턴이 하�
 """
 from __future__ import annotations
 
-from cgr import pii_mask
+from app.core import pii_mask
 
 
 def test_rrn_masked():

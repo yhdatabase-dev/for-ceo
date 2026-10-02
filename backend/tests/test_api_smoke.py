@@ -16,7 +16,7 @@ from fastapi.testclient import TestClient
 @pytest.fixture(scope="module")
 def client():
     # conftest 가 API_KEY/ADMIN_API_KEY/CGR_DATA_DIR(임시) 를 이미 설정한 상태에서 import
-    from cgr.api.main import app
+    from app.main import app
     with TestClient(app) as c:  # with: startup 이벤트(보관기간 정리 — 임시 디렉터리) 실행
         yield c
 

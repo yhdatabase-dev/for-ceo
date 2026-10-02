@@ -35,7 +35,7 @@ sys.path.insert(0, str(ROOT))
 
 import openpyxl  # noqa: E402
 
-from cgr import db as _db  # noqa: E402
+from app.repositories import base as _db  # noqa: E402
 
 
 XLSX_PATH = ROOT / "data" / "영세사업주를 위한 꿀팁.xlsx"

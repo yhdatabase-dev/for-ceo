@@ -31,7 +31,7 @@ reload_flag = "--reload" if "--reload" in sys.argv else None
 
 cmd = [
     sys.executable, "-m", "uvicorn",
-    "cgr.api.main:app",
+    "app.main:app",
     "--host", "127.0.0.1",
     "--port", "8503",
     "--log-level", "info",

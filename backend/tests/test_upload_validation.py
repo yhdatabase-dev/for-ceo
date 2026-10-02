@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 from fastapi import HTTPException
 
-from cgr.upload_tracker import MAX_UPLOAD_BYTES, validate_upload
+from app.core.upload import MAX_UPLOAD_BYTES, validate_upload
 
 PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 64
 JPG = b"\xff\xd8\xff\xe0" + b"\x00" * 64

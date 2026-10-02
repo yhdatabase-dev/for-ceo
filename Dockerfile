@@ -38,4 +38,4 @@ ENV PORT=8080
 EXPOSE 8080
 
 # shell 형식 — $PORT 치환 필요
-CMD uvicorn cgr.api.main:app --host 0.0.0.0 --port ${PORT}
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT}
