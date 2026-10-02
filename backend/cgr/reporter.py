@@ -5,8 +5,16 @@ import json
 from pathlib import Path
 
 from .models import Finding, Report
-from .ui import BUCKET_EMOJI as _BUCKET_EMOJI
 from .verdict import classify, detail_label
+
+# 5-Bucket 이모지 — 구 cgr.ui.constants.BUCKET_EMOJI (Streamlit 관리자 제거로 이관)
+_BUCKET_EMOJI: dict[str, str] = {
+    "누락": "🔴",
+    "위반": "🟠",
+    "주의": "🟡",
+    "검토필요": "🟣",
+    "적정": "✅",
+}
 
 _STATUS_EMOJI = {"OK": "✅", "VIOLATION": "❌", "MISSING": "🟥", "ERROR": "⚠️", "AMBIGUOUS": "🟣"}
 
