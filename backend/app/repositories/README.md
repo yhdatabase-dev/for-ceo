@@ -1,73 +1,46 @@
-# `cgr.db` — 통합 마스터 DB
+# `app.repositories` — DB 접근
 
-SQLite 단일 파일 (`backend/data/master.db`). 27 테이블 + 3 뷰.
+PostgreSQL (DE10 테이블정의서 기준, 스키마 `ai` · `app`).
 
 ## 진입
 
 ```python
-from cgr import db
+from app.repositories import base as db
 
 with db.connect() as conn:
-    cur = conn.execute("SELECT * FROM v_minimum_wage_current")
-    row = cur.fetchone()
-    print(row["year"], row["hourly_amount"])
+    row = conn.execute(
+        "SELECT crtr_yr, hrwg_amt FROM ai.tb_yr_lwprc_wage WHERE crtr_yr = %s", ("2026",)
+    ).fetchone()
+    print(row["crtr_yr"], row["hrwg_amt"])
 ```
 
 `connect()` 컨텍스트 매니저:
-- `sqlite3.Row` factory → `row["col"]` 접근
-- `PRAGMA foreign_keys = ON` 강제
+- 행은 dict → `row["col"]` 접근
+- 값은 바인딩 파라미터(`%s`)로만 전달 (DE03 4.6)
 - 자동 `commit` / `rollback`
 
-## 스키마
+## 접속 정보
 
-[`schema.sql`](schema.sql) — 단일 진실의 원천. 4 도메인:
+`app.core.config.get_db_conninfo()` — 환경변수 우선, 없으면 `backend/.env` (git 제외).
 
-1. **정규화 마스터** — `document_type` · `topic` · `topic_section` · `law` · `law_article`
-2. **슬롯 카탈로그** — `check_item` · `check_item_*` (5 테이블)
-3. **계산형 룰** — `minimum_wage_master` · `wage_item_catalog` · `violation_type` · `recommendation_mapping`
-4. **트랜잭션·검토** — `workplace` · `employee` · `payslip*` · `inspection_run` · `violation_finding` · `recommendation` · `correction_log` · `audit_*`
-
-전체 명세 — [`../../../docs/04_자료사전.md`](../../../docs/04_자료사전.md)
-
-## 시드
-
-```bash
-cd backend
-python scripts/seed_master_db.py --drop-first
-```
-
-7 단계:
-1. 스키마 생성
-2. document_type
-3. topic + topic_section (corpus JSON)
-4. check_item from YAML (EC 35 + WR 115 + WS 11)
-5. 33-매핑 → topic/law 링크 (EC 전용)
-6. WS topic/law 링크 (YAML meta 필드 직접)
-7. 임금 룰 마스터 (최저임금 5년치·임금항목 19·V001~V010·권고 10)
-
-## 편의 view
-
-```sql
--- 슬롯 한 건 풀 컨텍스트 (topic/law JSON 배열)
-SELECT * FROM v_check_item_full WHERE slot_code = 'SLOT_WS_04_임금총액';
-
--- 한 검토 실행의 풀 컨텍스트 (findings JSON 배열)
-SELECT * FROM v_inspection_full WHERE run_uid = 'RUN_xxx';
-
--- 현재 적용 최저임금
-SELECT * FROM v_minimum_wage_current;
-```
-
-## 환경변수
-
-| 변수 | 기본 |
+| 변수 | 내용 |
 |---|---|
-| `CGR_MASTER_DB` | `backend/data/master.db` |
+| `PGHOST` · `PGPORT` | 서버 |
+| `PGDATABASE` | DB 이름 |
+| `PGUSER` · `PGPASSWORD` | 계정 |
 
-## Postgres 전환 시 호환성
+## 서비스가 쓰는 테이블
 
-대부분 SQL 표준. 차이 나는 부분:
-- `INTEGER PRIMARY KEY AUTOINCREMENT` → `BIGSERIAL PRIMARY KEY`
-- `datetime('now')` → `now()`
-- JSON: SQLite `json_group_array` → PG `jsonb_agg`
-- 뷰 정의 — PG 에서 재작성 필요
+| 용도 | 테이블 |
+|---|---|
+| 근로계약서 슬롯 카탈로그 (`ec/catalog.py`) | `ai.tb_chck_item_slot` · `tb_chck_item_apcbt` · `tb_chck_item_risk` · `tb_chck_item_ref_tpc` · `tb_chck_item_stt` · `tb_doc_knd` |
+| 법령 · 노무 주제 | `ai.tb_stt_mstr` · `tb_stt_artcl` · `tb_tpc_mstr` · `tb_tpc_sctn` |
+| 최저임금 | `ai.tb_yr_lwprc_wage` |
+| 접속 · 업로드 · LLM 호출 기록 (`shared/analytics.py`) | `app.tb_cntn_rcd` · `app.tb_file_uld_rcd` · `ai.tb_llm_clot_log` |
+
+DB 접속이 안 되면 슬롯은 `data/slots/*.yaml`, 주제 본문은 `data/topic_corpus.json` 으로 대신 읽는다.
+
+## 기준 데이터 갱신
+
+슬롯 yaml · 코퍼스가 바뀌면 `scripts/seed_master_db.py` 로 `data/master.db`(SQLite)를 다시 만든 뒤
+PostgreSQL 로 다시 적재한다. SQLite 스키마는 `scripts/master_schema.sql`.

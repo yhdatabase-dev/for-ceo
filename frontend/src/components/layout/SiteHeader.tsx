@@ -17,9 +17,6 @@ export function SiteHeader() {
         </div>
       </Link>
       <div className={styles.nav}>
-        <Link href="/guide" className={styles.navLink}>
-          꿀팁 가이드
-        </Link>
         <Link href="/history" className={styles.navLink}>
           내 검토
         </Link>

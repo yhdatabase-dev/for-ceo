@@ -1,11 +1,9 @@
 """근로계약서 항목 → 관련 주제 DB 섹션 lookup.
 
 **우선순위**
-  1. 마스터 SQLite DB (`mvp/data/master.db`) — check_item_topic 조인.
+  1. PostgreSQL (DE10) — tb_chck_item_ref_tpc(점검항목_참조주제) 조인.
   2. (fallback) ANALYSIS_PROMPT 의 매핑 테이블 파싱 + topic_corpus.json
      — DB 가 없거나 비어있는 환경에서도 동작 보장.
-
-마스터 DB 는 `mvp/scripts/seed_master_db.py` 가 채워둔다.
 """
 from __future__ import annotations
 
@@ -80,7 +78,7 @@ def _build_item_to_topics() -> dict[str, list[tuple[str, str]]]:
 
 @lru_cache(maxsize=1)
 def _content_sections() -> frozenset[str]:
-    """본문(원문/풀이)이 있는 (주제명|섹션번호) 집합 — master.db 기준.
+    """본문(원문/풀이)이 있는 (주제명|섹션번호) 집합 — DB(tb_tpc_mstr·tb_tpc_sctn) 기준.
 
     빈 섹션(예: '임금 3.3' — body 둘 다 공란)을 참고자료에서 거르는 데 쓴다.
     DB 접근 실패 시 빈 집합 → 필터하지 않음(보수적)."""
@@ -89,12 +87,12 @@ def _content_sections() -> frozenset[str]:
 
         with _db.connect() as c:
             rows = c.execute(
-                "SELECT t.name, ts.section_no FROM topic_section ts "
-                "JOIN topic t ON t.id = ts.topic_id "
-                "WHERE COALESCE(ts.body_original,'') <> '' "
-                "   OR COALESCE(ts.body_friendly,'') <> ''"
+                "SELECT t.tpc_nm AS name, ts.sctn_no AS section_no FROM ai.tb_tpc_sctn ts "
+                "JOIN ai.tb_tpc_mstr t ON t.tpc_sn = ts.tpc_sn "
+                "WHERE COALESCE(ts.mtxt_cn,'') <> '' "
+                "   OR COALESCE(ts.frd_mtxt_cn,'') <> ''"
             ).fetchall()
-        return frozenset(f"{r[0]}|{r[1]}" for r in rows)
+        return frozenset(f"{r['name']}|{r['section_no']}" for r in rows)
     except Exception:
         return frozenset()
 
@@ -193,7 +191,7 @@ def build_related_topics_block(item_name: str | None) -> str:
 
 
 def _fetch_via_sql(item_name: str) -> list[dict[str, str]]:
-    """마스터 DB 의 check_item_topic 조인 — 한 항목의 관련 주제 섹션 본문.
+    """DB 의 점검항목_참조주제(tb_chck_item_ref_tpc) 조인 — 한 항목의 관련 주제 섹션 본문.
 
     EC 문서 한정. body_friendly 우선, 없으면 body_original.
     """
@@ -205,20 +203,20 @@ def _fetch_via_sql(item_name: str) -> list[dict[str, str]]:
         with _db.connect() as conn:
             cur = conn.execute(
                 """
-                SELECT t.name AS topic, ts.section_no AS section,
-                       ts.title AS title,
-                       COALESCE(NULLIF(ts.body_friendly, ''), ts.body_original) AS body
-                FROM check_item ci
-                JOIN document_type dt ON dt.id = ci.document_type_id
-                JOIN check_item_topic cit ON cit.check_item_id = ci.id
-                JOIN topic_section ts     ON ts.id = cit.topic_section_id
-                JOIN topic t              ON t.id = ts.topic_id
-                WHERE dt.code = 'employment_contract'
-                  AND ci.name = ?
-                  AND COALESCE(NULLIF(ts.body_friendly, ''),
-                              NULLIF(ts.body_original, '')) IS NOT NULL
-                ORDER BY cit.weight DESC, ts.section_no
-                LIMIT ?
+                SELECT t.tpc_nm AS topic, ts.sctn_no AS section,
+                       ts.sctn_nm AS title,
+                       COALESCE(NULLIF(ts.frd_mtxt_cn, ''), ts.mtxt_cn) AS body
+                FROM ai.tb_chck_item_slot ci
+                JOIN ai.tb_doc_knd dt            ON dt.doc_sn = ci.doc_sn
+                JOIN ai.tb_chck_item_ref_tpc cit ON cit.mng_sn = ci.mng_sn
+                JOIN ai.tb_tpc_sctn ts           ON ts.sctn_sn = cit.sctn_sn
+                JOIN ai.tb_tpc_mstr t            ON t.tpc_sn = ts.tpc_sn
+                WHERE dt.doc_eng_nm = 'employment_contract'
+                  AND ci.trgt_artcl_nm = %s
+                  AND COALESCE(NULLIF(ts.frd_mtxt_cn, ''),
+                              NULLIF(ts.mtxt_cn, '')) IS NOT NULL
+                ORDER BY cit.wgvl_rt DESC, ts.sctn_no
+                LIMIT %s
                 """,
                 (item_name, MAX_SECTIONS_PER_ITEM),
             )

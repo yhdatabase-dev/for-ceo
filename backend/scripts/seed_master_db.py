@@ -26,7 +26,7 @@ sys.path.insert(0, str(ROOT))
 
 import yaml  # noqa: E402
 
-from app.repositories import base as db  # noqa: E402
+import master_sqlite as db  # noqa: E402
 from app.services.ec import prompts  # noqa: E402
 
 CORPUS_PATH = ROOT / "data" / "topic_corpus.json"
@@ -481,18 +481,18 @@ def main() -> None:
     parser.add_argument("--drop-first", action="store_true")
     args = parser.parse_args()
 
-    print("[1/8] schema")
+    print("[1/6] schema")
     db.init_schema(drop_first=args.drop_first)
 
     with db.connect() as conn:
-        print("[2/8] document_type")
+        print("[2/6] document_type")
         doc_ids = seed_document_types(conn)
         print(f"  {doc_ids}")
 
-        print("[3/8] topic + topic_section (corpus)")
+        print("[3/6] topic + topic_section (corpus)")
         topic_id_by_code = seed_topics_and_sections(conn)
 
-        print("[4/8] check_item from slot YAML")
+        print("[4/6] check_item from slot YAML")
         ec_codes = seed_check_items_from_yaml(
             conn, doc_ids["employment_contract"], EC_SLOTS_PATH
         )
@@ -500,7 +500,7 @@ def main() -> None:
             conn, doc_ids["work_rules"], WR_SLOTS_PATH
         )
 
-        print("[5/8] 33-mapping (category / topic / law links - EC)")
+        print("[5/6] 33-mapping (category / topic / law links - EC)")
         seed_mapping_from_analysis_prompt(
             conn,
             doc_ids["employment_contract"],
@@ -510,15 +510,11 @@ def main() -> None:
 
         # 근로계약서 프롬프트가 v_minimum_wage_current 를 읽으므로 최저임금만 시드.
         # 임금명세서 전용(임금항목·위반유형·권고안)·노무제공자 슬롯은 제외.
-        print("[7/8] minimum wage master")
+        print("[6/6] minimum wage master")
         from scripts.seed_wage_masters import seed_minimum_wage
 
         n_mw = seed_minimum_wage(conn)
         print(f"  minimum_wage: {n_mw}")
-
-    print("[8/8] guide DB (영세사업주 꿀팁 카탈로그)")
-    from scripts.seed_guide_db import run as seed_guide_run
-    seed_guide_run()
 
     print()
     print("=== final counts ===")

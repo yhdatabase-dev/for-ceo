@@ -44,8 +44,8 @@ async function handler(
   const init: RequestInit = {
     method: req.method,
     headers: buildHeaders(req, isMultipart),
-    // 백엔드가 302 redirect 를 반환하는 경우 (예: /guide/forms/{code}/download 이
-    // 로컬 파일 없을 때 외부 정부 사이트로 redirect) — Next.js 의 fetch 가 자동
+    // 백엔드가 302 redirect 를 반환하는 경우 (예: 외부 사이트로 redirect)
+    // — Next.js 의 fetch 가 자동
     // follow 하면 외부 사이트로 직접 호출 가다 실패한다. 'manual' 로 두면 302
     // 응답 자체를 클라이언트(브라우저) 로 그대로 forward 해서 브라우저가 따라간다.
     redirect: 'manual',

@@ -38,38 +38,6 @@
   color: var(--color-text-subtle);
 }
 
-/* 모바일 전용 — 우하단 플로팅 챗봇(노무 가이드) 버튼 */
-.chatFab {
-  display: none;
-}
-
-@media (max-width: 720px) {
-  .chatFab {
-    position: fixed;
-    right: 16px;
-    bottom: 20px;
-    z-index: 40;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 52px;
-    padding: 0 18px 0 15px;
-    border-radius: 999px;
-    background: var(--color-brand);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: -0.2px;
-    text-decoration: none;
-    box-shadow: 0 8px 22px rgba(11, 61, 145, 0.36);
-    transition: transform 0.15s;
-  }
-
-  .chatFab:active {
-    transform: scale(0.96);
-  }
-}
-
 /* ─────────────────────────────────────────────
  *  모바일(≤720px) 2단계 플로 — 시안 '근로계약서 검토 앱.html'
  *  의 s-home / s-upload 스타일 이식. JS(matchMedia) 분기로만
@@ -151,7 +119,7 @@
 /* ── 문서 카드 (시안 .doctype / .dt-card) ── */
 
 .mDoctype {
-  /* 하단 96px — 플로팅 노무 가이드(.chatFab)와 겹치지 않게 */
+  /* 하단 여백 96px */
   padding: 8px 18px 96px;
 }
 

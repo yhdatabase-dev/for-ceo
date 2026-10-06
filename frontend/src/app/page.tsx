@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 
 import Button from '@/components/ui/Button';
 import Icon from '@/components/ui/Icon';
@@ -13,7 +12,6 @@ import SectionHeading from '@/components/home/SectionHeading';
 import DocTypePicker from '@/components/home/DocTypePicker';
 import FileDropzone from '@/components/home/FileDropzone';
 import MobileUploadE from '@/components/home/MobileUploadE';
-import HomeGuidePreview from '@/components/home/HomeGuidePreview';
 import WorkplaceForm, {
   DEFAULT_WORKPLACE,
   toWorkplaceContext,
@@ -353,22 +351,6 @@ export default function HomePage() {
               </button>
             ))}
           </div>
-
-          {/* 플로팅 노무 가이드 — select 단계에서만 노출 */}
-          <Link href="/guide" className={styles.chatFab} aria-label="노무 가이드 챗봇 열기">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.9"
-              aria-hidden
-            >
-              <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 0 1-.9-3.8A8.38 8.38 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z" />
-            </svg>
-            <span>노무 가이드</span>
-          </Link>
         </div>
       );
     }
@@ -519,30 +501,7 @@ export default function HomePage() {
         <div className={styles.footnote}>
           평균 1~2분 소요됩니다 · 결과는 PDF로 저장하여 사업장 보관 가능
         </div>
-
-        {/* 꿀팁 가이드 미리보기 — 사업장 규모 선택 시 의무 자동 표시 */}
-        <HomeGuidePreview
-          businessSize={
-            workplace.businessSize === 'unknown' ? null : workplace.businessSize
-          }
-        />
       </div>
-
-      {/* 모바일 전용 — 우하단 플로팅 챗봇(노무 가이드) 버튼 */}
-      <Link href="/guide" className={styles.chatFab} aria-label="노무 가이드 챗봇 열기">
-        <svg
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.9"
-          aria-hidden
-        >
-          <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 0 1-.9-3.8A8.38 8.38 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z" />
-        </svg>
-        <span>노무 가이드</span>
-      </Link>
     </div>
   );
 }

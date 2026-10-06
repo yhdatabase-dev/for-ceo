@@ -1,10 +1,10 @@
 """근로계약서 슬롯 카탈로그 로더.
 
 **우선순위**
-  1. 마스터 SQLite DB (`mvp/data/master.db`) — check_item + applicability + risk 조인
+  1. PostgreSQL (DE10) — tb_chck_item_slot + apcbt(적용조건) + risk(위험도) 조인
   2. (fallback) `data/slots/atomic_slots_ec.yaml`
 
-마스터 DB 가 있으면 그것을, 없거나 비어있으면 yaml 을 그대로 사용.
+DB 에 있으면 그것을, 접속 실패·빈 결과면 yaml 을 그대로 사용.
 """
 from __future__ import annotations
 
@@ -101,7 +101,7 @@ def load_ec_catalog(path: Path | None = None) -> EcCatalog:
 
 
 def _load_from_sql() -> EcCatalog | None:
-    """마스터 DB 에서 EC 슬롯 35개 + applicability + risk 를 한 번에 조회.
+    """DB 에서 EC 슬롯 35개 + 적용조건 + 위험도를 한 번에 조회.
 
     DB 가 없거나 빈 결과면 None 반환 → 호출자가 yaml fallback.
     """
@@ -114,18 +114,20 @@ def _load_from_sql() -> EcCatalog | None:
             cur = conn.execute(
                 """
                 SELECT
-                  ci.code, ci.name, ci.required_content, ci.purpose,
-                  ci.comparator, ci.display_order,
-                  cia.business_size, cia.worker_types,
-                  cir.missing_severity, cir.violation_severity, cir.fix_example
-                FROM check_item ci
-                JOIN document_type dt ON dt.id = ci.document_type_id
-                LEFT JOIN check_item_applicability cia
-                  ON cia.check_item_id = ci.id
-                LEFT JOIN check_item_risk cir
-                  ON cir.check_item_id = ci.id
-                WHERE dt.code = 'employment_contract'
-                ORDER BY ci.display_order, ci.id
+                  ci.slot_id_nm AS code, ci.trgt_artcl_nm AS name,
+                  ci.req_cn AS required_content, ci.req_prps_cn AS purpose,
+                  ci.jgmt_cmpr_mth AS comparator, ci.indct_seq AS display_order,
+                  cia.bplc_scl_cn AS business_size, cia.wrkr_type_cn AS worker_types,
+                  cir.omsn_svrt AS missing_severity, cir.cn_impr_svrt AS violation_severity,
+                  cir.crc_exm_cn AS fix_example
+                FROM ai.tb_chck_item_slot ci
+                JOIN ai.tb_doc_knd dt ON dt.doc_sn = ci.doc_sn
+                LEFT JOIN ai.tb_chck_item_apcbt cia
+                  ON cia.mng_sn = ci.mng_sn
+                LEFT JOIN ai.tb_chck_item_risk cir
+                  ON cir.mng_sn = ci.mng_sn
+                WHERE dt.doc_eng_nm = 'employment_contract'
+                ORDER BY ci.indct_seq, ci.mng_sn
                 """
             )
             rows = cur.fetchall()
@@ -189,7 +191,7 @@ def _load_from_sql() -> EcCatalog | None:
         return EcCatalog(
             version="sql-v1",
             doc="employment_contract",
-            description="loaded from master.db (SQLite)",
+            description="loaded from PostgreSQL (DE10)",
             slots=slots,
         )
     except Exception:
@@ -200,13 +202,13 @@ def _fetch_topic_meta(conn, slot_code: str) -> list[str]:
     """슬롯 code → ['주제명 N.N.N', …]."""
     cur = conn.execute(
         """
-        SELECT t.name AS topic, ts.section_no AS sec
-        FROM check_item ci
-        JOIN check_item_topic cit ON cit.check_item_id = ci.id
-        JOIN topic_section ts     ON ts.id = cit.topic_section_id
-        JOIN topic t              ON t.id = ts.topic_id
-        WHERE ci.code = ?
-        ORDER BY t.name, ts.section_no
+        SELECT t.tpc_nm AS topic, ts.sctn_no AS sec
+        FROM ai.tb_chck_item_slot ci
+        JOIN ai.tb_chck_item_ref_tpc cit ON cit.mng_sn = ci.mng_sn
+        JOIN ai.tb_tpc_sctn ts           ON ts.sctn_sn = cit.sctn_sn
+        JOIN ai.tb_tpc_mstr t            ON t.tpc_sn = ts.tpc_sn
+        WHERE ci.slot_id_nm = %s
+        ORDER BY t.tpc_nm, ts.sctn_no
         """,
         (slot_code,),
     )
@@ -217,14 +219,14 @@ def _fetch_laws(conn, slot_code: str) -> list[str]:
     """슬롯 code → ['근로기준법 제17조 제1항 제1호', …]."""
     cur = conn.execute(
         """
-        SELECT l.code AS law, la.article_no AS art,
-               la.paragraph_no AS para, la.item_no AS item
-        FROM check_item ci
-        JOIN check_item_law cil ON cil.check_item_id = ci.id
-        JOIN law_article la     ON la.id = cil.law_article_id
-        JOIN law l              ON l.id = la.law_id
-        WHERE ci.code = ?
-        ORDER BY l.code, la.article_no
+        SELECT l.stt_cd_nm AS law, la.claus_no AS art,
+               la.para_no AS para, la.subpara_no AS item
+        FROM ai.tb_chck_item_slot ci
+        JOIN ai.tb_chck_item_stt cil ON cil.mng_sn = ci.mng_sn
+        JOIN ai.tb_stt_artcl la      ON la.lprvs_sn = cil.lprvs_sn
+        JOIN ai.tb_stt_mstr l        ON l.stt_sn = la.stt_sn
+        WHERE ci.slot_id_nm = %s
+        ORDER BY l.stt_cd_nm, la.claus_no
         """,
         (slot_code,),
     )

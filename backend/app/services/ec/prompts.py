@@ -251,8 +251,8 @@ def build_structure_user_prompt(extracted_text: str) -> str:
 
 
 def _current_minimum_wage_block() -> str:
-    """마스터 DB(`v_minimum_wage_current`) 에서 현행 최저임금을 읽어 LLM 이 임금 항목
-    검토 시 즉시 참조 가능한 블록 생성. 마스터 DB 조회 실패 시 빈 문자열.
+    """DB(tb_yr_lwprc_wage) 에서 오늘 시행 중인 최저임금을 읽어 LLM 이 임금 항목
+    검토 시 즉시 참조 가능한 블록 생성. DB 조회 실패 시 빈 문자열.
 
     이 블록을 analyze user prompt 머리에 박아 system prompt 의 캐시 키를 흔들지 않으면서도
     "현행 최저임금 미달" 판정을 가능하게 한다. (generate 단계엔 이미 하드코딩 돼 있어
@@ -263,7 +263,17 @@ def _current_minimum_wage_block() -> str:
         from app.repositories import base as db
 
         with db.connect() as conn:
-            row = conn.execute("SELECT * FROM v_minimum_wage_current").fetchone()
+            row = conn.execute(
+                """
+                SELECT crtr_yr AS year, hrwg_amt AS hourly_amount,
+                       monthly_cnvs_amt AS monthly_amount_209h, data_src_cn AS source
+                FROM ai.tb_yr_lwprc_wage
+                WHERE enfc_ymd <= to_char(current_date, 'YYYYMMDD')
+                  AND (enfc_end_ymd IS NULL OR enfc_end_ymd >= to_char(current_date, 'YYYYMMDD'))
+                ORDER BY crtr_yr DESC
+                LIMIT 1
+                """
+            ).fetchone()
         if not row:
             return ""
         year = int(row["year"])

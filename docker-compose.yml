@@ -15,6 +15,11 @@ services:
       ADMIN_API_KEY: ${ADMIN_API_KEY}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-mini}
+      PGHOST: ${PGHOST}
+      PGPORT: ${PGPORT:-5432}
+      PGDATABASE: ${PGDATABASE}
+      PGUSER: ${PGUSER}
+      PGPASSWORD: ${PGPASSWORD}
       CGR_DATA_DIR: /data
       PORT: "8080"
     volumes:

@@ -23,7 +23,7 @@ router = APIRouter(tags=["topics"])
     response_class=JSONResponse,
 )
 def get_corpus() -> JSONResponse:
-    """SQLite topic + topic_section → 중첩 dict.
+    """tb_tpc_mstr(주제) + tb_tpc_sctn(섹션) → 중첩 dict.
 
     빈 결과면 빈 dict `{}` — 프론트는 fallback 으로 빌드타임 JSON 을 쓰지 않고
     백엔드 응답을 그대로 신뢰한다.
@@ -34,14 +34,14 @@ def get_corpus() -> JSONResponse:
             cur = conn.execute(
                 """
                 SELECT
-                  t.code      AS db_code,
-                  ts.section_no AS section_no,
-                  ts.title     AS title,
-                  ts.body_original AS body,
-                  ts.body_friendly AS body_friendly
-                FROM topic_section ts
-                JOIN topic t ON t.id = ts.topic_id
-                ORDER BY t.code, ts.section_no
+                  t.tpc_cd_nm    AS db_code,
+                  ts.sctn_no     AS section_no,
+                  ts.sctn_nm     AS title,
+                  ts.mtxt_cn     AS body,
+                  ts.frd_mtxt_cn AS body_friendly
+                FROM ai.tb_tpc_sctn ts
+                JOIN ai.tb_tpc_mstr t ON t.tpc_sn = ts.tpc_sn
+                ORDER BY t.tpc_cd_nm, ts.sctn_no
                 """
             )
             for r in cur.fetchall():
