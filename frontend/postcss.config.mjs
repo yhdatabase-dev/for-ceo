@@ -1,4 +1,4 @@
-// Tailwind CSS 4 (DE03 §1.4) — PostCSS 플러그인 방식.
+// Tailwind CSS 4 — PostCSS 플러그인 방식.
 const config = {
   plugins: {
     '@tailwindcss/postcss': {},

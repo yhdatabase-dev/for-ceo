@@ -1,4 +1,4 @@
-"""API 라우터 집결 — 도메인 prefix 는 이 파일 한 곳에서만 선언한다 (DE03 3.4).
+"""API 라우터 집결 — 도메인 prefix 는 이 파일 한 곳에서만 선언한다.
 
 등록 순서는 구 cgr/api/main.py 의 순서(review → wr_classify → ec → history → topics → track)를
 그대로 따른다. 경로·메서드는 구조 이행 전과 같다.

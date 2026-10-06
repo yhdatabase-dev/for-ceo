@@ -1,6 +1,6 @@
 # `app.repositories` — DB 접근
 
-PostgreSQL (DE10 테이블정의서 기준, 스키마 `ai` · `app`).
+PostgreSQL (스키마 `ai` · `app`).
 
 ## 진입
 
@@ -16,7 +16,7 @@ with db.connect() as conn:
 
 `connect()` 컨텍스트 매니저:
 - 행은 dict → `row["col"]` 접근
-- 값은 바인딩 파라미터(`%s`)로만 전달 (DE03 4.6)
+- 값은 바인딩 파라미터(`%s`)로만 전달
 - 자동 `commit` / `rollback`
 
 ## 접속 정보

@@ -1,7 +1,7 @@
 """근로계약서 슬롯 카탈로그 로더.
 
 **우선순위**
-  1. PostgreSQL (DE10) — tb_chck_item_slot + apcbt(적용조건) + risk(위험도) 조인
+  1. PostgreSQL — tb_chck_item_slot + apcbt(적용조건) + risk(위험도) 조인
   2. (fallback) `data/slots/atomic_slots_ec.yaml`
 
 DB 에 있으면 그것을, 접속 실패·빈 결과면 yaml 을 그대로 사용.
@@ -191,7 +191,7 @@ def _load_from_sql() -> EcCatalog | None:
         return EcCatalog(
             version="sql-v1",
             doc="employment_contract",
-            description="loaded from PostgreSQL (DE10)",
+            description="loaded from PostgreSQL",
             slots=slots,
         )
     except Exception:

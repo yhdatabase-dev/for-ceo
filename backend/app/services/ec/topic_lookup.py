@@ -1,7 +1,7 @@
 """근로계약서 항목 → 관련 주제 DB 섹션 lookup.
 
 **우선순위**
-  1. PostgreSQL (DE10) — tb_chck_item_ref_tpc(점검항목_참조주제) 조인.
+  1. PostgreSQL — tb_chck_item_ref_tpc(점검항목_참조주제) 조인.
   2. (fallback) ANALYSIS_PROMPT 의 매핑 테이블 파싱 + topic_corpus.json
      — DB 가 없거나 비어있는 환경에서도 동작 보장.
 """

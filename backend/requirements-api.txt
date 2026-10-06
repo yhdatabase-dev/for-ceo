@@ -1,20 +1,20 @@
 # 취업규칙 검토 AI — 백엔드 API 런타임 의존성 (운영 이미지 기준 정본)
 #
 # 버전 기준 (2026-10-01 정렬)
-#   1순위: DE03 개발표준정의서 v1.0 §1.4 적용 기술
-#   2순위: Docmost "표준스택 (개발표준정의서 반영)" §3.2 공통 표준값
-#   3순위: DE03·Docmost 에 값이 없는 개별 라이브러리 — 운영 실측(pip freeze) 버전
+#   1순위: 개발표준 적용 기술 버전
+#   2순위: Docmost "표준스택" 공통 표준값
+#   3순위: 위에 값이 없는 개별 라이브러리 — 운영 실측(pip freeze) 버전
 # Runtime: Python 3.14.7
 #
 # 로컬 풀스택(Streamlit 어드민 포함) 개발은 requirements.txt 사용.
 
-# ─── FastAPI 서버 (DE03) ─────────────────────
+# ─── FastAPI 서버 ─────────────────────
 fastapi==0.141.1
 uvicorn[standard]==0.53.0
 pydantic==2.13.5
 pydantic-settings==2.15.0
 
-# ─── DATABASE (DE03) — 구조 이행 시 도입. 현재 코드는 sqlite3 사용 ─
+# ─── DATABASE (PostgreSQL) ─
 sqlalchemy==2.0.54
 psycopg[binary]==3.3.6
 alembic==1.20.0

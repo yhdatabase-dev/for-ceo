@@ -1,7 +1,7 @@
 """시드용 SQLite 마스터 DB(`data/master.db`) helper.
 
 슬롯 yaml·코퍼스·임금 마스터를 SQLite 로 모으는 seed 스크립트 전용이다.
-서비스(app)는 PostgreSQL(DE10)을 쓰고, 이 파일은 PostgreSQL 적재 원천을 만드는 데만 쓴다.
+서비스(app)는 PostgreSQL 을 쓰고, 이 파일은 PostgreSQL 적재 원천을 만드는 데만 쓴다.
 env `CGR_MASTER_DB` 로 경로 override.
 """
 from __future__ import annotations
