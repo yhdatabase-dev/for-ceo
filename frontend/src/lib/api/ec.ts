@@ -69,11 +69,11 @@ export async function postEcExtract(
   // 원본 파일을 서버에 보관해 관리자 로그와 연결 (case_id) — service 로 라벨 분기(EC/취업규칙 공용 추출).
   if (opts.caseId) form.append('case_id', opts.caseId);
   if (opts.service) form.append('service', opts.service);
-  const { job_id } = await apiPostForm<{ job_id: string }>('/ec/extract/start', form, {
+  const { job_id } = await apiPostForm<{ job_id: string }>('/ec/extractions', form, {
     signal: opts.signal,
   });
   return pollJob<EcExtractOut>(
-    (id) => `/ec/extract/result/${id}`,
+    (id) => `/ec/extractions/${id}`,
     job_id,
     (res) =>
       res.extracted_text != null
@@ -94,12 +94,12 @@ export async function postEcStructure(
   opts: { signal?: AbortSignal } = {},
 ): Promise<EcStructureOut> {
   const { job_id } = await apiPostJson<{ job_id: string }>(
-    '/ec/structure/start',
+    '/ec/structures',
     { extracted_text: extractedText },
     { signal: opts.signal },
   );
   return pollJob<EcStructureOut>(
-    (id) => `/ec/structure/result/${id}`,
+    (id) => `/ec/structures/${id}`,
     job_id,
     (res) =>
       res.structured_data != null
@@ -131,12 +131,12 @@ export async function postEcClassify(
   opts: { signal?: AbortSignal } = {},
 ): Promise<EcClassifyOut> {
   const { job_id } = await apiPostJson<{ job_id: string }>(
-    '/ec/classify/start',
+    '/ec/classifications',
     { extracted_text: extractedText },
     { signal: opts.signal },
   );
   return pollJob<EcClassifyOut>(
-    (id) => `/ec/classify/result/${id}`,
+    (id) => `/ec/classifications/${id}`,
     job_id,
     (res) =>
       res.worker_types != null
@@ -172,8 +172,8 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
  *
  * 동기 단일 요청은 Render cold start + 분석 시간이 합쳐져 Vercel 60초 함수
  * 타임아웃에 걸려 'Unterminated JSON' 으로 실패했다. 이제:
- *   1) /ec/analyze/start 로 job_id 만 즉시 받고 (백엔드는 백그라운드 스레드 실행)
- *   2) /ec/analyze/result/{job_id} 를 짧게 폴링 — 각 요청 1초 미만이라 타임아웃 무관
+ *   1) POST /ec/analyses 로 job_id 만 즉시 받고 (백엔드는 백그라운드 스레드 실행)
+ *   2) GET /ec/analyses/{job_id} 를 짧게 폴링 — 각 요청 1초 미만이라 타임아웃 무관
  * 분석이 아무리 오래 걸려도(느려도) 끊기지 않고 반드시 완료된다.
  */
 export async function postEcAnalyze(
@@ -183,7 +183,7 @@ export async function postEcAnalyze(
   opts: { legalGuidelines?: string; signal?: AbortSignal; caseId?: string } = {},
 ): Promise<EcAnalyzeOut> {
   const { job_id } = await apiPostJson<{ job_id: string }>(
-    '/ec/analyze/start',
+    '/ec/analyses',
     {
       structured_data: structuredData,
       business_size: businessSize,
@@ -206,7 +206,7 @@ export async function postEcAnalyze(
       error: string | null;
       elapsed_sec: number;
       model: string;
-    }>(`/ec/analyze/result/${job_id}`, { signal: opts.signal });
+    }>(`/ec/analyses/${job_id}`, { signal: opts.signal });
 
     if (res.status === 'done' && res.analysis_result) {
       return {
@@ -241,7 +241,7 @@ export async function postEcValidateField(
   이유: string;
   작성예시: string;
 }> {
-  return apiPostJson('/ec/validate-field', body, { signal: opts.signal });
+  return apiPostJson('/ec/field-validations', body, { signal: opts.signal });
 }
 
 /** 4단계: 분석 결과 → 표준 근로계약서 텍스트.
@@ -259,7 +259,7 @@ export async function postEcGenerate(
 ): Promise<EcGenerateOut> {
   // analyze 와 동일하게 비동기 잡(start + poll)로 — 게이트웨이 타임아웃 우회.
   const { job_id } = await apiPostJson<{ job_id: string }>(
-    '/ec/generate/start',
+    '/ec/drafts',
     {
       analysis_result: analysisResult,
       user_overrides: opts.userOverrides ?? {},
@@ -278,7 +278,7 @@ export async function postEcGenerate(
       error: string | null;
       elapsed_sec: number;
       model: string;
-    }>(`/ec/generate/result/${job_id}`, { signal: opts.signal });
+    }>(`/ec/drafts/${job_id}`, { signal: opts.signal });
 
     if (res.status === 'done' && res.contract_text != null) {
       return {
@@ -307,7 +307,7 @@ export async function postEcChat(
   } = {},
 ): Promise<EcChatOut> {
   return apiPostJson<EcChatOut>(
-    '/ec/chat',
+    '/ec/chat-messages',
     {
       message,
       analysis_result: opts.analysisResult ?? null,
@@ -324,6 +324,6 @@ export async function downloadEcDocx(
   body: { contract_text: string; filename?: string },
 ): Promise<void> {
   const fname = body.filename ?? '표준_근로계약서.docx';
-  const { blob, filename } = await apiPostJsonBlob('/ec/generate-docx', body);
+  const { blob, filename } = await apiPostJsonBlob('/ec/documents', body);
   triggerDownload(blob, filename ?? fname);
 }

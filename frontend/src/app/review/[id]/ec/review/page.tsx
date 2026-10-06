@@ -20,7 +20,7 @@ import styles from './page.module.css';
  *
  * 좌: 원본 이미지 (또는 추출 텍스트 fallback)
  * 우: EditableStructureTable (8섹션 dict 사용자 수정)
- * 하단: "분석 시작" → POST /api/v1/ec/analyze → 결과 페이지로 이동.
+ * 하단: "분석 시작" → POST /api/cgr/ec/analyses → 결과 페이지로 이동.
  */
 export default function EcReviewPage(props: { params: Promise<{ id: string }> }) {
   const params = use(props.params);

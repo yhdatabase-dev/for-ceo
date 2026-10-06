@@ -20,7 +20,7 @@ router = APIRouter(tags=["employment_contract"])
 
 
 @router.post(
-    "/chat",
+    "/chat-messages",
     response_model=ChatOut,
     summary="근로계약서 검토 결과 기반 대화형 후속 질문",
     description=(

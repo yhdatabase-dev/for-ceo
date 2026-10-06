@@ -88,7 +88,7 @@ export async function postWrClassify(
   opts: { signal?: AbortSignal } = {},
 ): Promise<WrClassifyOut> {
   const { job_id } = await apiPostJson<{ job_id: string }>(
-    '/review/classify/start',
+    '/wr/classifications',
     { extracted_text: extractedText },
     { signal: opts.signal },
   );
@@ -98,7 +98,7 @@ export async function postWrClassify(
   for (;;) {
     await reviewSleep(POLL_MS, opts.signal);
     const res = await apiGet<Record<string, unknown>>(
-      `/review/classify/result/${job_id}`,
+      `/wr/classifications/${job_id}`,
       { signal: opts.signal },
     );
     if (res.status === 'done') {
@@ -148,7 +148,7 @@ function reviewSleep(ms: number, signal?: AbortSignal): Promise<void> {
  *
  * 취업규칙 검토는 Excel 로드 + 전 조항 LLM 검토를 한 번에 하므로 동기 요청 시
  * Render cold start 와 합쳐져 Vercel 60초 함수 한도를 넘겨 'Unterminated JSON'
- * 으로 끊겼다. 이제 /review/start 로 job_id 만 받고 /review/result 를 폴링 —
+ * 으로 끊겼다. 이제 POST /wr/reviews 로 job_id 만 받고 GET /wr/reviews/{job_id} 를 폴링 —
  * 각 요청 1초 미만이라 아무리 느려도(검토가 길어도) 끊기지 않는다.
  */
 export async function postReviewRaw(opts: PostReviewOptions): Promise<AnyReviewOut> {
@@ -174,7 +174,7 @@ export async function postReviewRaw(opts: PostReviewOptions): Promise<AnyReviewO
   form.append('worker_types', context.workerTypes.join(','));
 
   // 1) 시작 — job_id 즉시 수령
-  const { job_id } = await apiPostForm<{ job_id: string }>('/review/start', form, {
+  const { job_id } = await apiPostForm<{ job_id: string }>('/wr/reviews', form, {
     signal,
   });
 
@@ -189,7 +189,7 @@ export async function postReviewRaw(opts: PostReviewOptions): Promise<AnyReviewO
       result: AnyReviewOut | null;
       error: string | null;
       elapsed_sec: number;
-    }>(`/review/result/${job_id}`, { signal });
+    }>(`/wr/reviews/${job_id}`, { signal });
 
     if (res.status === 'done' && res.result) {
       return res.result;
@@ -233,7 +233,7 @@ export async function postWrGenerate(
   opts: { signal?: AbortSignal } = {},
 ): Promise<WrGenerateOut> {
   const { job_id } = await apiPostJson<{ job_id: string }>(
-    '/review/generate/start',
+    '/wr/revisions',
     { original_text: originalText, corrections },
     { signal: opts.signal },
   );
@@ -249,7 +249,7 @@ export async function postWrGenerate(
       error: string | null;
       elapsed_sec: number;
       model: string;
-    }>(`/review/generate/result/${job_id}`, { signal: opts.signal });
+    }>(`/wr/revisions/${job_id}`, { signal: opts.signal });
 
     if (res.status === 'done' && res.revised_text != null) {
       return {
@@ -272,7 +272,7 @@ export async function downloadWrDocx(
   body: { contract_text: string; filename?: string },
 ): Promise<void> {
   const fname = body.filename ?? '취업규칙_수정본.docx';
-  const { blob, filename } = await apiPostJsonBlob('/review/generate-docx', body);
+  const { blob, filename } = await apiPostJsonBlob('/wr/revision-documents', body);
   triggerDownload(blob, filename ?? fname);
 }
 
@@ -289,7 +289,7 @@ export async function downloadWrComparisonDocx(body: {
   filename?: string;
 }): Promise<void> {
   const fname = body.filename ?? '취업규칙_신구대조표.docx';
-  const { blob, filename } = await apiPostJsonBlob('/review/comparison-docx', body);
+  const { blob, filename } = await apiPostJsonBlob('/wr/comparison-documents', body);
   triggerDownload(blob, filename ?? fname);
 }
 
@@ -298,7 +298,7 @@ export const postReview = postReviewWorkRules;
 
 /** GET /review/{case_id} — 이력 요약 조회. */
 export async function getReviewSummary(caseId: string): Promise<ReviewSummaryOut> {
-  return apiGet<ReviewSummaryOut>(`/review/${encodeURIComponent(caseId)}`);
+  return apiGet<ReviewSummaryOut>(`/wr/review-summaries/${encodeURIComponent(caseId)}`);
 }
 
 /** 응답 자체를 분기 처리하는 헬퍼 export. */

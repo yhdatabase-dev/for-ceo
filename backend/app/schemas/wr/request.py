@@ -16,9 +16,9 @@ class WorkplaceContextIn(BaseModel):
 # ─────────────────────────────────────────────
 # 수정본 생성 — 원문 보존 + 사용자 수정 목록만 반영 (start + poll)
 #
-#   POST /api/v1/review/generate/start       → {job_id} 즉시 반환, 백그라운드 생성
-#   GET  /api/v1/review/generate/result/{j}  → {status, revised_text, ...} 폴링
-#   POST /api/v1/review/generate-docx        → 본문 → .docx 다운로드
+#   POST /api/cgr/wr/revisions                → {job_id} 즉시 반환, 백그라운드 생성
+#   GET  /api/cgr/wr/revisions/{job_id}       → {status, revised_text, ...} 폴링
+#   POST /api/cgr/wr/revision-documents       → 본문 → .docx 다운로드
 #
 # 철학: 문제없는 조항은 두고, 사용자가 담은 수정 항목만 교체·추가해 전문 출력.
 # 주의: GET /review/{case_id} (단일 세그먼트) 보다 먼저 선언 — 경로 충돌 방지.

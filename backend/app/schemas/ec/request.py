@@ -13,13 +13,13 @@ class ClassifyIn(BaseModel):
     extracted_text: str = Field(..., description="추출된 계약서 텍스트")
 
 # ─────────────────────────────────────────────
-# 2) POST /api/v1/ec/structure
+# 2) POST /api/cgr/ec/structures
 # ─────────────────────────────────────────────
 class StructureIn(BaseModel):
-    extracted_text: str = Field(..., description="`/ec/extract` 의 응답에서 받은 텍스트")
+    extracted_text: str = Field(..., description="`/ec/extractions` 의 응답에서 받은 텍스트")
 
 # ─────────────────────────────────────────────
-# 3) POST /api/v1/ec/analyze
+# 3) POST /api/cgr/ec/analyses
 # ─────────────────────────────────────────────
 class AnalyzeIn(BaseModel):
     structured_data: dict[str, Any] = Field(
@@ -40,7 +40,7 @@ class AnalyzeIn(BaseModel):
     )
 
 # ─────────────────────────────────────────────
-# 3-c) POST /api/v1/ec/validate-field — 단일 항목 즉시 재검토 (칸 편집 후)
+# 3-c) POST /api/cgr/ec/field-validations — 단일 항목 즉시 재검토 (칸 편집 후)
 # ─────────────────────────────────────────────
 class ValidateFieldIn(BaseModel):
     field: str = Field(..., description="재검토할 항목명 (analysis 의 '항목')")
@@ -49,11 +49,11 @@ class ValidateFieldIn(BaseModel):
     worker_types: list[str] = Field(default_factory=list)
 
 # ─────────────────────────────────────────────
-# 4) POST /api/v1/ec/generate
+# 4) POST /api/cgr/ec/drafts
 # ─────────────────────────────────────────────
 class GenerateIn(BaseModel):
     analysis_result: dict[str, Any] = Field(
-        ..., description="`/ec/analyze` 의 응답 dict 전체"
+        ..., description="`/ec/analyses` 의 응답 dict 전체"
     )
     user_overrides: dict[str, str] = Field(
         default_factory=dict,
@@ -64,7 +64,7 @@ class GenerateIn(BaseModel):
     )
 
 # ─────────────────────────────────────────────
-# 4-b) POST /api/v1/ec/generate-docx — 표준 계약서 .docx 다운로드
+# 4-b) POST /api/cgr/ec/documents — 표준 계약서 .docx 다운로드
 # ─────────────────────────────────────────────
 class GenerateDocxIn(BaseModel):
     contract_text: str = Field(
@@ -76,7 +76,7 @@ class GenerateDocxIn(BaseModel):
     )
 
 # ─────────────────────────────────────────────
-# 5) POST /api/v1/ec/chat — 대화형 챗봇 (SFR-001)
+# 5) POST /api/cgr/ec/chat-messages — 대화형 챗봇 (SFR-001)
 # ─────────────────────────────────────────────
 class ChatHistoryTurn(BaseModel):
     role: str  # "user" | "assistant"

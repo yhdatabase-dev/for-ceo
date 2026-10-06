@@ -43,13 +43,13 @@ primary_region = "nrt"
     soft_limit = 20
     hard_limit = 40
 
-# 헬스체크 — /api/v1/warmup (인증 불필요, 즉시 200)
+# 헬스체크 — /api/cgr/warmup (인증 불필요, 즉시 200)
 [[http_service.checks]]
   interval = "30s"
   timeout = "5s"
   grace_period = "20s"
   method = "GET"
-  path = "/api/v1/warmup"
+  path = "/api/cgr/warmup"
 
 [[vm]]
   # 분석 LLM 대기 중 메모리 여유 — 1GB. 부족하면 2048 로 상향.

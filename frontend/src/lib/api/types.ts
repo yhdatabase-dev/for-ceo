@@ -105,7 +105,7 @@ export function isEcReview(r: AnyReviewOut): r is EcReviewOut {
  * (기존 1. 근로계약서/기존/ Vite+Express 의 prompts.json 스키마를 그대로 옮김)
  * ─────────────────────────────────────────────── */
 
-/** `/api/v1/ec/extract` 응답. */
+/** `/api/cgr/ec/extractions` 응답. */
 export interface EcExtractOut {
   extracted_text: string;
   filename: string;
@@ -137,7 +137,7 @@ export interface EcStructuredData {
   [extra: string]: Record<string, EcStructuredField> | string[];
 }
 
-/** `/api/v1/ec/structure` 응답. */
+/** `/api/cgr/ec/structures` 응답. */
 export interface EcStructureOut {
   structured_data: EcStructuredData;
   elapsed_sec: number;
@@ -166,14 +166,14 @@ export interface EcAnalysisResult {
   finalRecommendations: string;
 }
 
-/** `/api/v1/ec/analyze` 응답. */
+/** `/api/cgr/ec/analyses` 응답. */
 export interface EcAnalyzeOut {
   analysis_result: EcAnalysisResult;
   elapsed_sec: number;
   model: string;
 }
 
-/** `/api/v1/ec/generate` 응답. */
+/** `/api/cgr/ec/drafts` 응답. */
 export interface EcGenerateOut {
   contract_text: string;
   elapsed_sec: number;
@@ -186,7 +186,7 @@ export interface EcChatTurn {
   content: string;
 }
 
-/** `/api/v1/ec/chat` 응답. */
+/** `/api/cgr/ec/chat-messages` 응답. */
 export interface EcChatOut {
   answer: string;
   elapsed_sec: number;

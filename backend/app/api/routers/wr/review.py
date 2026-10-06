@@ -30,7 +30,7 @@ router = APIRouter(tags=["review"])
 
 
 @router.post(
-    "",
+    "/reviews/sync",
     response_model=ReviewFullOut | EcReviewOut,
     summary="사업장 문서 검토 (취업규칙·근로계약서)",
     description=(
@@ -99,7 +99,7 @@ async def post_review(
             log.warning("무시된 예외 — %s: %s", type(e).__name__, e)
 
 @router.post(
-    "/start",
+    "/reviews",
     response_model=ReviewJobStartOut,
     summary="비동기 검토 시작 — job_id 반환",
     dependencies=[Depends(require_api_key)],
@@ -142,7 +142,7 @@ async def post_review_start(
     return ReviewJobStartOut(job_id=job_id)
 
 @router.get(
-    "/result/{job_id}",
+    "/reviews/{job_id}",
     response_model=ReviewJobResultOut,
     summary="비동기 검토 결과 폴링",
     dependencies=[Depends(require_api_key)],

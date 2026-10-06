@@ -11,7 +11,7 @@ router = APIRouter(tags=["topics"])
 
 
 @router.get(
-    "/corpus",
+    "/sections",
     summary="주제 코퍼스 전체 (프론트엔드 hover/excerpt 용)",
     description=(
         "노무사회 31개 주제 × 1,769 섹션 본문을 한 번에 반환.\n"

@@ -17,7 +17,7 @@ router = APIRouter(tags=["employment_contract"])
 
 
 @router.post(
-    "/validate-field",
+    "/field-validations",
     response_model=ValidateFieldOut,
     summary="근로계약서 단일 항목 즉시 재검토 (칸 편집 후 점 갱신용)",
     dependencies=[Depends(require_api_key)],

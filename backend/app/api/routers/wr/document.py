@@ -16,7 +16,7 @@ router = APIRouter(tags=["review"])
 
 
 @router.post(
-    "/generate-docx",
+    "/revision-documents",
     summary="취업규칙 수정본 본문 → .docx 변환·다운로드",
     description="수정본 본문을 .docx 로 변환. 한글 폰트(맑은 고딕)·A4·표준 여백.",
     dependencies=[Depends(require_api_key)],
@@ -55,7 +55,7 @@ def post_generate_docx(body: GenerateDocxIn):
     )
 
 @router.post(
-    "/comparison-docx",
+    "/comparison-documents",
     summary="취업규칙 신구대조표(표) + 의견청취서 → .docx 다운로드",
     description="신구대조표를 깨지지 않는 3열 표로 출력하고, 뒤에 의견청취서 양식을 함께 첨부.",
     dependencies=[Depends(require_api_key)],

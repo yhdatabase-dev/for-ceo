@@ -21,7 +21,7 @@ router = APIRouter(tags=["employment_contract"])
 
 
 @router.post(
-    "/generate",
+    "/drafts/sync",
     response_model=GenerateOut,
     summary="분석 결과 → 표준 근로계약서 텍스트",
     dependencies=[Depends(require_api_key)],
@@ -45,7 +45,7 @@ def post_generate(body: GenerateIn):
     )
 
 @router.post(
-    "/generate/start",
+    "/drafts",
     response_model=JobStartOut,
     summary="비동기 계약서 생성 시작 — job_id 반환",
     dependencies=[Depends(require_api_key)],
@@ -61,7 +61,7 @@ def post_generate_start(body: GenerateIn):
     return JobStartOut(job_id=job_id)
 
 @router.get(
-    "/generate/result/{job_id}",
+    "/drafts/{job_id}",
     response_model=GenerateResultOut,
     summary="비동기 계약서 생성 결과 폴링",
     dependencies=[Depends(require_api_key)],

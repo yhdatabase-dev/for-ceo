@@ -8,7 +8,7 @@
  *
  * **변경 이력**
  *   - 기존: 빌드 번들에 `topicCorpus.json` (1.83MB) 박혀 있었음.
- *   - 현재: `/api/v1/topics/corpus` 로 lazy fetch (lib/api/topics.ts 모듈 캐시).
+ *   - 현재: `/api/cgr/topics/sections` 로 lazy fetch (lib/api/topics.ts 모듈 캐시).
  *     - 페이지 mount 시 `ensureCorpusLoaded()` 1회 호출.
  *     - 호버 발생 시 `getCorpusSync()` 로 동기 접근 (이미 적재 완료).
  *     - 아직 미적재면 4순위 fallback 메시지로 잠시 표시 → 적재 후 재렌더.

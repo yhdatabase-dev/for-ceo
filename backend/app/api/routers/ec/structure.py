@@ -22,12 +22,12 @@ router = APIRouter(tags=["employment_contract"])
 
 
 @router.post(
-    "/structure",
+    "/structures/sync",
     response_model=StructureOut,
     summary="OCR 텍스트 → 8섹션 구조화 JSON",
     description=(
         "Step2 검토 페이지의 입력 데이터. 사용자는 표 UI 에서 행 단위로 value/note 를 수정 후\n"
-        "`/ec/analyze` 로 보낸다."
+        "`/ec/analyses` 로 보낸다."
     ),
     dependencies=[Depends(require_api_key)],
 )
@@ -47,7 +47,7 @@ def post_structure(body: StructureIn):
     )
 
 @router.post(
-    "/structure/start",
+    "/structures",
     response_model=JobStartOut,
     summary="비동기 구조화 시작 — job_id 반환",
     dependencies=[Depends(require_api_key)],
@@ -61,7 +61,7 @@ def post_structure_start(body: StructureIn):
     return JobStartOut(job_id=jobs.start_job(_do))
 
 @router.get(
-    "/structure/result/{job_id}",
+    "/structures/{job_id}",
     response_model=StructureResultOut,
     summary="비동기 구조화 결과 폴링",
     dependencies=[Depends(require_api_key)],

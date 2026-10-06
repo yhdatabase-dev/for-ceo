@@ -187,7 +187,7 @@ export default function HomePage() {
         // → LoadingScreen 측 폴링에서 phase 를 보고 /ec/review 로 라우팅.
       } else {
         // 취업규칙 — 추출 후 사용자 확인 단계로.
-        //   1) /ec/extract (범용 parse_to_text — docx/hwp/pdf/txt/이미지) 파일 → 텍스트
+        //   1) /ec/extractions (범용 parse_to_text — docx/hwp/pdf/txt/이미지) 파일 → 텍스트
         //   2) AI 근로환경 1차 분류 (교대제·산안법·화학물질·작업환경측정 추정)
         //      — 실패해도 흐름 계속 (확인 배너만 생략, 보수적 기본값 검사)
         //   3) (사용자 확인·수정) /review/[id]/wr/review — '분석 시작' 시 postReviewWorkRules 호출.

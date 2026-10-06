@@ -1,5 +1,5 @@
 /**
- * BFF — 클라이언트 `/api/cgr/*` → 백엔드 FastAPI `{API_BASE}/api/v1/*` 프록시.
+ * BFF — 클라이언트 `/api/cgr/*` → 백엔드 FastAPI `{API_BASE}/api/cgr/*` 프록시.
  *
  * 서버측에서만 `CGR_API_KEY` 환경변수 사용 → 클라이언트에 키 노출 없음.
  * GET / POST 모두 처리 (파일 업로드 multipart 포함).
@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8503';
-const API_PREFIX = '/api/v1';
+const API_PREFIX = '/api/cgr';
 const API_KEY = process.env.CGR_API_KEY ?? '';
 
 /**

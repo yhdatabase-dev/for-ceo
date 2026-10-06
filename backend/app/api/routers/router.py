@@ -1,7 +1,7 @@
 """API 라우터 집결 — 도메인 prefix 는 이 파일 한 곳에서만 선언한다.
 
 등록 순서는 구 cgr/api/main.py 의 순서(review → wr_classify → ec → history → topics → track)를
-그대로 따른다. 경로·메서드는 구조 이행 전과 같다.
+그대로 따른다. 경로는 /api/cgr/<도메인>/<리소스> 형식이다.
 web/ai 파트 구분은 확정 전이라 도메인 디렉터리 하나에 둔다.
 """
 from __future__ import annotations
@@ -27,12 +27,12 @@ from app.api.routers.wr import summary as wr_summary
 
 api_router = APIRouter()
 
-# ── 취업규칙 (wr) — URL 세그먼트는 구조 이행 전과 같은 /review ──
-api_router.include_router(wr_review.router, prefix="/review")
-api_router.include_router(wr_revision.router, prefix="/review")
-api_router.include_router(wr_document.router, prefix="/review")
-api_router.include_router(wr_summary.router, prefix="/review")
-api_router.include_router(wr_classify.router, prefix="/review")
+# ── 취업규칙 (wr) ──
+api_router.include_router(wr_review.router, prefix="/wr")
+api_router.include_router(wr_revision.router, prefix="/wr")
+api_router.include_router(wr_document.router, prefix="/wr")
+api_router.include_router(wr_summary.router, prefix="/wr")
+api_router.include_router(wr_classify.router, prefix="/wr")
 
 # ── 근로계약서 (ec) ──
 api_router.include_router(ec_extract.router, prefix="/ec")

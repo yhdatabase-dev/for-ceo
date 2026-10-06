@@ -25,7 +25,7 @@ router = APIRouter(tags=["employment_contract"])
 
 
 @router.post(
-    "/analyze",
+    "/analyses/sync",
     response_model=AnalyzeOut,
     summary="구조화 데이터 + 컨텍스트 → 33매핑 위반 분석",
     dependencies=[Depends(require_api_key)],
@@ -67,7 +67,7 @@ def post_analyze(body: AnalyzeIn):
     )
 
 @router.post(
-    "/analyze/start",
+    "/analyses",
     response_model=JobStartOut,
     summary="비동기 분석 시작 — job_id 반환",
     dependencies=[Depends(require_api_key)],
@@ -104,7 +104,7 @@ def post_analyze_start(body: AnalyzeIn):
     return JobStartOut(job_id=job_id)
 
 @router.get(
-    "/analyze/result/{job_id}",
+    "/analyses/{job_id}",
     response_model=AnalyzeResultOut,
     summary="비동기 분석 결과 폴링",
     dependencies=[Depends(require_api_key)],

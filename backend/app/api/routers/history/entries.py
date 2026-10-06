@@ -17,7 +17,7 @@ router = APIRouter(tags=["history"])
 
 
 @router.get(
-    "",
+    "/entries",
     response_model=HistoryListOut,
     summary="검토 이력 목록",
     dependencies=[Depends(require_api_key)],

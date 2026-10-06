@@ -37,7 +37,7 @@ class EcReviewOut(BaseModel):
     findings: list[EcFindingOut] = Field(default_factory=list)
 
 # ─────────────────────────────────────────────
-# 1) POST /api/v1/ec/extract
+# 1) POST /api/cgr/ec/extractions
 # ─────────────────────────────────────────────
 class ExtractOut(BaseModel):
     """OCR/파일 추출 응답."""
@@ -102,8 +102,8 @@ class ValidateFieldOut(BaseModel):
 # ─────────────────────────────────────────────
 # 3-b) 비동기 분석 — 게이트웨이 타임아웃 우회 (start + poll)
 #
-#   POST /api/v1/ec/analyze/start      → {job_id} 즉시 반환, 백그라운드 분석
-#   GET  /api/v1/ec/analyze/result/{j} → {status, analysis_result, ...} 폴링
+#   POST /api/cgr/ec/analyses           → {job_id} 즉시 반환, 백그라운드 분석
+#   GET  /api/cgr/ec/analyses/{job_id}  → {status, analysis_result, ...} 폴링
 #
 # 동기 /analyze 는 하위호환·로컬용으로 유지. 프론트는 start+poll 을 사용.
 # (JobStartOut 은 위 extract 섹션에서 정의됨 — 재사용)

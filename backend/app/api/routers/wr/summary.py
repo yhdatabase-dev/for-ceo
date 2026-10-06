@@ -13,7 +13,7 @@ router = APIRouter(tags=["review"])
 
 
 @router.get(
-    "/{case_id}",
+    "/review-summaries/{case_id}",
     response_model=ReviewSummaryOut,
     summary="case_id 로 이력 검토 결과 조회",
     dependencies=[Depends(require_api_key)],

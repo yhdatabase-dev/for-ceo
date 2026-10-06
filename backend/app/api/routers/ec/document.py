@@ -17,7 +17,7 @@ router = APIRouter(tags=["employment_contract"])
 
 
 @router.post(
-    "/generate-docx",
+    "/documents",
     summary="평문 본문 → .docx 변환·다운로드",
     description="사용자가 편집한 계약서 본문을 .docx 로 변환. 한글 폰트·A4·표준 양식.",
     dependencies=[Depends(require_api_key)],

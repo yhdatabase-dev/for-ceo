@@ -4,7 +4,7 @@
  * 기존 `src/data/topicCorpus.json` (1.83MB) 를 빌드 번들에 박지 않고
  * 첫 hover/excerpt 요청 직전에 1회만 받아 모듈 캐시에 보관.
  *
- * 백엔드: `GET /api/v1/topics/corpus` (cgr/api/routes/topics.py)
+ * 백엔드: `GET /api/cgr/topics/sections` (cgr/api/routes/topics.py)
  *
  * 캐시 정책
  *   - 모듈 레벨 Promise 한 개 → 동시 호출도 단일 fetch 로 수렴.
@@ -52,7 +52,7 @@ function _notify() {
 export function ensureCorpusLoaded(): Promise<TopicCorpus> {
   if (_corpusCache) return Promise.resolve(_corpusCache);
   if (_inflight) return _inflight;
-  _inflight = apiGet<TopicCorpus>('/topics/corpus')
+  _inflight = apiGet<TopicCorpus>('/topics/sections')
     .then((data) => {
       _corpusCache = data && typeof data === 'object' ? data : EMPTY_CORPUS;
       return _corpusCache;

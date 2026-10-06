@@ -30,13 +30,13 @@ router = APIRouter(tags=["employment_contract"])
 
 
 @router.post(
-    "/extract",
+    "/extractions/sync",
     response_model=ExtractOut,
     summary="근로계약서 파일 → 텍스트 추출 (OCR 포함)",
     description=(
         "이미지(PNG/JPG 등)는 `cgr/parsers/image.py` Vision OCR 로,\n"
         "DOCX·HWP·PDF·TXT 는 기존 파서로 텍스트 추출.\n"
-        "다음 단계(`/ec/structure`) 의 입력이 됩니다."
+        "다음 단계(`/ec/structures`) 의 입력이 됩니다."
     ),
     dependencies=[Depends(require_api_key)],
 )
@@ -80,7 +80,7 @@ async def post_extract(
     )
 
 @router.post(
-    "/extract/start",
+    "/extractions",
     response_model=JobStartOut,
     summary="비동기 추출 시작 — job_id 반환",
     dependencies=[Depends(require_api_key)],
@@ -122,7 +122,7 @@ async def post_extract_start(
     return JobStartOut(job_id=jobs.start_job(_do))
 
 @router.get(
-    "/extract/result/{job_id}",
+    "/extractions/{job_id}",
     response_model=ExtractResultOut,
     summary="비동기 추출 결과 폴링",
     dependencies=[Depends(require_api_key)],

@@ -18,7 +18,7 @@ router = APIRouter(tags=["review"])
 
 
 @router.post(
-    "/generate/start",
+    "/revisions",
     response_model=ReviewJobStartOut,
     summary="비동기 취업규칙 수정본 생성 시작 — job_id 반환",
     description=(
@@ -46,7 +46,7 @@ def post_generate_start(body: GenerateIn):
     return ReviewJobStartOut(job_id=jobs.start_job(_do))
 
 @router.get(
-    "/generate/result/{job_id}",
+    "/revisions/{job_id}",
     response_model=GenerateResultOut,
     summary="비동기 취업규칙 수정본 생성 결과 폴링",
     dependencies=[Depends(require_api_key)],

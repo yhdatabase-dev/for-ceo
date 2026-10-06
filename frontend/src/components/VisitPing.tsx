@@ -34,7 +34,7 @@ export default function VisitPing() {
       const page = (typeof window !== 'undefined' && window.location.pathname) || '';
       const ctrl = new AbortController();
       const killer = window.setTimeout(() => ctrl.abort(), 5000);
-      fetch(`${BASE_PATH}/api/cgr/track`, {
+      fetch(`${BASE_PATH}/api/cgr/track/visits`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ visitor, page }),

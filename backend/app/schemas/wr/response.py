@@ -45,8 +45,8 @@ class ReviewFullOut(ReviewSummaryOut):
 # ─────────────────────────────────────────────
 # 비동기 검토 — 게이트웨이 타임아웃 우회 (start + poll)
 #
-#   POST /api/v1/review/start       → {job_id} 즉시 반환, 백그라운드 검토
-#   GET  /api/v1/review/result/{id} → {status, result, ...} 폴링
+#   POST /api/cgr/wr/reviews         → {job_id} 즉시 반환, 백그라운드 검토
+#   GET  /api/cgr/wr/reviews/{job_id}→ {status, result, ...} 폴링
 #
 # 취업규칙 검토는 Excel 로드 + 전 조항 LLM 검토를 한 번에 하므로 가장 느림.
 # 동기 POST /review 는 하위호환·로컬용으로 유지하고, 프론트는 start+poll 사용.

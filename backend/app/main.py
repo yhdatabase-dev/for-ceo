@@ -37,8 +37,8 @@ app = FastAPI(
         "취업규칙·근로계약서 검토 백엔드 REST API.\n\n"
         "**인증**: 모든 보호 엔드포인트는 `X-API-Key` 헤더 필요.\n\n"
         "**핵심 엔드포인트**:\n"
-        "- `POST /api/v1/review` — 사업장 파일 업로드 + 검토 실행\n"
-        "- `GET /api/v1/history` — 검토 이력"
+        "- `POST /api/cgr/wr/reviews` — 취업규칙 파일 업로드 + 검토 접수\n"
+        "- `GET /api/cgr/history/entries` — 검토 이력"
     ),
     version="1.0.0",
     docs_url="/docs",
@@ -93,8 +93,8 @@ async def _request_context(request, call_next):
     return resp
 
 
-# ─── 라우터 등록 (prefix /api/v1) ──────────
-API_PREFIX = "/api/v1"
+# ─── 라우터 등록 (prefix /api/cgr) ──────────
+API_PREFIX = "/api/cgr"
 app.include_router(api_router, prefix=API_PREFIX)
 
 

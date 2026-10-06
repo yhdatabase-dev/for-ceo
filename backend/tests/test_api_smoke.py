@@ -21,7 +21,7 @@ def client():
         yield c
 
 
-API = "/api/v1"
+API = "/api/cgr"
 KEY = {"X-API-Key": os.environ.get("API_KEY", "test-api-key")}
 ADMIN = {"X-API-Key": os.environ.get("ADMIN_API_KEY", "test-admin-key")}
 
@@ -45,12 +45,12 @@ def test_security_headers_present(client):
 
 
 def test_protected_route_requires_key(client):
-    assert client.get(f"{API}/history").status_code == 401
-    assert client.get(f"{API}/history", headers={"X-API-Key": "wrong"}).status_code == 401
+    assert client.get(f"{API}/history/entries").status_code == 401
+    assert client.get(f"{API}/history/entries", headers={"X-API-Key": "wrong"}).status_code == 401
 
 
 def test_protected_route_with_key(client):
-    r = client.get(f"{API}/history", headers=KEY)
+    r = client.get(f"{API}/history/entries", headers=KEY)
     assert r.status_code == 200
 
 
@@ -67,7 +67,7 @@ def test_removed_routes_absent(client, path):
 def test_upload_rejects_disguised_file(client):
     """추출 엔드포인트가 위장 파일(.png 인데 exe 바이트)을 400 으로 거부."""
     r = client.post(
-        f"{API}/ec/extract/start",
+        f"{API}/ec/extractions",
         headers=KEY,
         files={"file": ("fake.png", b"MZ\x90\x00" + b"\x00" * 32, "image/png")},
     )

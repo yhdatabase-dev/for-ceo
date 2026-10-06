@@ -20,7 +20,7 @@ router = APIRouter(tags=["employment_contract"])
 
 
 @router.post(
-    "/classify/start",
+    "/classifications",
     response_model=JobStartOut,
     summary="비동기 분류 시작 — 근로자 유형 AI 판별",
     dependencies=[Depends(require_api_key)],
@@ -34,7 +34,7 @@ def post_classify_start(body: ClassifyIn):
     return JobStartOut(job_id=jobs.start_job(_do))
 
 @router.get(
-    "/classify/result/{job_id}",
+    "/classifications/{job_id}",
     response_model=ClassifyResultOut,
     summary="비동기 분류 결과 폴링",
     dependencies=[Depends(require_api_key)],

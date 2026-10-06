@@ -27,10 +27,10 @@ export type AnyCaseResult =
  */
 export type EcPhase =
   | 'idle' // 시작 전
-  | 'extracting' // /ec/extract 진행
+  | 'extracting' // /ec/extractions 진행
   | 'structuring' // /ec/structure 진행
   | 'review' // 사용자 검토·수정 단계 (Step2)
-  | 'analyzing' // /ec/analyze 진행
+  | 'analyzing' // /ec/analyses 진행
   | 'result' // Step3 완료 — 결과 페이지로
   | 'generating' // /ec/generate 진행
   | 'contract' // Step4 완료 — 계약서 페이지로
@@ -55,7 +55,7 @@ export interface EcWorkflow {
     reason?: string;
     confirmed?: boolean;
   };
-  /** /ec/analyze 결과 (Step3 페이지가 사용). */
+  /** /ec/analyses 결과 (Step3 페이지가 사용). */
   analysisResult?: EcAnalysisResult;
   /** /ec/generate 결과 (Step4 페이지가 사용). */
   generatedContract?: string;
