@@ -1,5 +1,7 @@
 'use client';
 
+// 프로그램명세서 CM-002-03 검토이력: 화면 URL /cgr/history — 결과 링크도 /cgr/ec·/cgr/wr 경로로 (기존: /history, /review/[id])
+
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 

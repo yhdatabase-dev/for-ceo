@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import tempfile
+import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
@@ -22,6 +23,8 @@ from app.services.wr.dispatch import (
 
 log = get_logger(__name__)
 
+# 프로그램명세서 AI-P03-001: POST /api/cgr/wr/reviews + GET /reviews/{job_id}
+#   (기존: /api/v1/review/start, /review/result/{job_id})
 router = APIRouter(tags=["review"])
 
 
@@ -43,6 +46,9 @@ async def post_review_start(
     summary_only: bool = Form(default=False),
     case_id: str = Form(default=""),
 ):
+    # 프로그램명세서 AI-P03-001: 검토 응답의 case_id 는 서버 생성 UUID.
+    #   화면은 추출 단계에서 받은 번호를 보내고, 없으면 여기서 발급한다. (기존: 브라우저 tmp_ 번호 또는 파일 해시)
+    case_id = (case_id or "").strip() or str(uuid.uuid4())
     bind_context(case=case_id)  # 로그 상관 — 이후 이 요청·잡의 모든 로그에 case 부착
     suffix = Path(file.filename or "upload.bin").suffix or ".bin"
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tf:
@@ -61,12 +67,16 @@ async def post_review_start(
     )
 
     def _do() -> dict:
-        return _dispatch_review(
+        out = _dispatch_review(
             tmp_path, filename, document_type, context, summary_only, case_id
         )
+        # 프로그램명세서 AI-P03-001: 응답 case_id 를 서버 발급 번호로 맞춘다
+        #   (기존: 검토 엔진이 파일 내용으로 만든 해시값)
+        out["case_id"] = case_id
+        return out
 
     job_id = jobs.start_job(_do)
-    return ReviewJobStartOut(job_id=job_id)
+    return ReviewJobStartOut(job_id=job_id, case_id=case_id)
 
 @router.get(
     "/reviews/{job_id}",

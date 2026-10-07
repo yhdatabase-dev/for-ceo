@@ -10,6 +10,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    # 개발표준정의서 Directory 구조: 환경변수 이름을 CGR_ 접두로 통일 (기존: API_KEY·PGHOST·OPENAI_MODEL·관리자 키)
     environment:
       CGR_ENVIRONMENT: prod
       CGR_API_KEY: ${CGR_API_KEY}
@@ -32,6 +33,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    # 백엔드 주소는 서버 전용 환경변수로 실행 시 주입 (기존: 빌드 인자 NEXT_PUBLIC_API_BASE)
     environment:
       CGR_API_BASE: http://backend:8080
       CGR_API_KEY: ${CGR_API_KEY}

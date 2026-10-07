@@ -21,6 +21,7 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.14.7
+      # 개발표준정의서 Directory 구조: 환경변수 이름을 CGR_ 접두로 통일 (기존: API_KEY·ADMIN_API_KEY·OPENAI_MODEL)
       - key: CGR_ENVIRONMENT
         value: prod
       - key: CGR_API_KEY

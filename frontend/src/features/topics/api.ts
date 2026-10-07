@@ -1,6 +1,9 @@
 /**
  * 노무사회 주제 코퍼스 — 백엔드 lazy fetch.
  *
+ * 개발표준정의서 Directory 구성도: 업무 기능은 features/<도메인>/ (기존: lib/api/topics.ts)
+ * 개발표준정의서 API 엔드포인트: GET /api/cgr/topics/sections (기존: /api/v1/topics/corpus)
+ *
  * 기존 `src/data/topicCorpus.json` (1.83MB) 를 빌드 번들에 박지 않고
  * 첫 hover/excerpt 요청 직전에 1회만 받아 모듈 캐시에 보관.
  *

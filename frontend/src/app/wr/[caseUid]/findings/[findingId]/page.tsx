@@ -1,5 +1,8 @@
 'use client';
 
+// 개발표준정의서 API 엔드포인트(화면 경로): 도메인 wr 아래로 이동 — 화면 URL /cgr/wr/[caseUid]/findings/[findingId]
+//   프로그램명세서 WR-002-P02 는 팝업이지만 현행 상세 화면을 유지 (기존: /review/[id]/findings/[findingId])
+
 import { useMemo, use } from 'react';
 import Link from 'next/link';
 

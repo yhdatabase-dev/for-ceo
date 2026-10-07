@@ -2,6 +2,7 @@
 
 **우선순위**
   1. PostgreSQL — tb_chck_item_slot + apcbt(적용조건) + risk(위험도) 조인
+     (테이블정의서 테이블명으로 조회, 기존: SQLite master.db 의 check_item 등)
   2. (fallback) `data/slots/atomic_slots_ec.yaml`
 
 DB 에 있으면 그것을, 접속 실패·빈 결과면 yaml 을 그대로 사용.

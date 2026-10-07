@@ -1,5 +1,7 @@
 /**
  * 취업규칙 검토 상태 — 검토 건(features/history/store)의 wr 단계 상태와 결과를 갱신한다.
+ *
+ * 개발표준정의서 프론트엔드 식별자: 전역 상태는 도메인별 features/<domain>/store.ts, 전역 단일 스토어를 두지 않는다 (기존: lib/reviewStore.ts)
  */
 import { ensureCaseEntry, memory, persist, type CaseEntry } from '@/features/history/store';
 import type { ReviewResult, WorkplaceContext } from '@/types/review';

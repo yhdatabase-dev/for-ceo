@@ -16,6 +16,8 @@ from app.schemas.ec.request import GenerateIn
 from app.schemas.ec.response import GenerateResultOut, JobStartOut
 from app.services.ec import generate as generate_service
 
+# 프로그램명세서 AI-P02-009: POST /api/cgr/ec/drafts + GET /drafts/{job_id}
+#   (기존: /api/v1/ec/generate/start, /generate/result/{job_id})
 router = APIRouter(tags=["employment_contract"])
 
 

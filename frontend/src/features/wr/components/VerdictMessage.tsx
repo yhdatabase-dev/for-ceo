@@ -1,6 +1,8 @@
 /**
  * 종합 판정 카드 메시지·톤 생성기.
  *
+ * 개발표준정의서 File Name: 컴포넌트 파일은 PascalCase (기존: components/review/verdictMessage.tsx)
+ *
  * 백엔드 분포(누락·위반·주의·검토필요·적정)를 받아
  * (1) 카드 톤 (severe/mild/warn/ok)
  * (2) 사람용 안내 문구 (ReactNode)

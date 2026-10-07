@@ -1,7 +1,8 @@
 'use client';
 
 /**
- * 백엔드 warm-up ping — fire-and-forget GET /api/cgr/health (인증 불필요).
+ * 백엔드 warm-up ping — fire-and-forget GET /api/cgr/warmup (인증 불필요).
+ * 개발표준정의서 API 엔드포인트: 서비스 접두 /api/cgr (기존: /api/v1/warmup)
  *
  * 배경:
  *   Render 무료 플랜은 15분 유휴 후 sleep → 첫 요청에 15-30초 cold start.

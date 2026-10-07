@@ -20,6 +20,8 @@ from app.services.ec import analyze as analyze_service
 
 log = get_logger(__name__)
 
+# 프로그램명세서 AI-P02-005: POST /api/cgr/ec/analyses + GET /analyses/{job_id}
+#   (기존: /api/v1/ec/analyze/start, /analyze/result/{job_id})
 router = APIRouter(tags=["employment_contract"])
 
 

@@ -53,6 +53,8 @@ class ReviewFullOut(ReviewSummaryOut):
 # ─────────────────────────────────────────────
 class ReviewJobStartOut(BaseModel):
     job_id: str
+    # 프로그램명세서 AI-P03-001: 검토 건 식별자(서버 생성 UUID)를 접수 응답에도 돌려준다 (기존: job_id 만 반환)
+    case_id: str = ""
 
 class ReviewJobResultOut(BaseModel):
     status: str = Field(..., description="pending | done | error")

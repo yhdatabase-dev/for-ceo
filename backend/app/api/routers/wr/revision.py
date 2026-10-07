@@ -14,6 +14,8 @@ from app.schemas.wr.response import (
 from app.services.wr import revise
 from app.services.wr.dispatch import _load_standard_work_rules
 
+# 개발표준정의서 API 엔드포인트: /api/cgr/<도메인>/<리소스> — 복수형 케밥, 동사·버전 금지
+#   POST /api/cgr/wr/revisions + GET /revisions/{job_id} (기존: /api/v1/review/generate/start, /generate/result/{job_id})
 router = APIRouter(tags=["review"])
 
 

@@ -1,5 +1,8 @@
 'use client';
 
+// 개발표준정의서 API 엔드포인트(화면 경로): basePath /cgr, 도메인 wr 아래로 이동 — 화면 URL /cgr/wr/[caseUid]/text
+//   프로그램명세서에 없는 현행 화면(추출 텍스트 확인)이라 이름은 text 로 정함 (기존: /review/[id]/wr/review)
+
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';

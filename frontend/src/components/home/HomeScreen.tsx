@@ -1,5 +1,7 @@
 'use client';
 
+// 프로그램명세서 LC-001-01·WR-001-01: /cgr/ec·/cgr/wr 업로드 화면에서 함께 쓰려고 app/page.tsx 에서 분리 (기존: app/page.tsx)
+
 import { useEffect, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -18,11 +20,17 @@ import WorkplaceForm, {
   type WorkplaceFormState,
 } from '@/components/home/WorkplaceForm';
 
-import { postEcClassify, postEcExtract, postEcStructure } from '@/features/ec/api';
+import {
+  postEcClassify,
+  postEcExtract,
+  postEcStructure,
+  startEcExtract,
+  waitEcExtract,
+} from '@/features/ec/api';
 import { postWrClassify } from '@/features/wr/api';
-import { extractAllText, fileToDisplayDataUrl } from '@/lib/uploadPrep';
+import { compressImageFile, extractAllText, fileToDisplayDataUrl } from '@/lib/uploadPrep';
 import { ApiCallError } from '@/lib/api/client';
-import { makeTempCaseId, setCaseError, startCase } from '@/features/history/store';
+import { setCaseError, startCase } from '@/features/history/store';
 import { updateEc } from '@/features/ec/store';
 import { updateWr } from '@/features/wr/store';
 
@@ -115,7 +123,25 @@ export default function HomeScreen({
     if (files.length === 0 || !docReady) return;
     setSubmitting(true);
 
-    const caseId = makeTempCaseId();
+    // 프로그램명세서 AI-P02-001: 검토 건 번호(case_id)는 서버가 UUID 로 발급한다.
+    //   첫 장 추출을 먼저 접수해 번호를 받고, 그 번호로 검토 건을 만든 뒤 진행 화면으로 간다.
+    //   (기존: 브라우저가 tmp_ 번호를 만들고 바로 진행 화면으로 이동)
+    const service = docType === 'employment-contract' ? '근로계약서' : '취업규칙';
+    let caseId: string;
+    let firstResult: ReturnType<typeof waitEcExtract>;
+    try {
+      const firstJob = await startEcExtract(await compressImageFile(files[0]), { service });
+      caseId = firstJob.caseId;
+      firstResult = waitEcExtract(firstJob.jobId);
+      firstResult.catch(() => undefined); // 아래 extractAllText 에서 처리 — 미처리 거부 경고 방지
+    } catch (err) {
+      // 검토 건이 아직 없어 진행 화면 대신 이 화면에서 안내한다.
+      const rawMsg =
+        err instanceof ApiCallError ? err.detail : err instanceof Error ? err.message : String(err);
+      window.alert(humanizeError(rawMsg, err instanceof ApiCallError ? err.status : undefined));
+      setSubmitting(false);
+      return;
+    }
 
     // 결과 페이지 좌측 미리보기용 — 첫 파일이 이미지면 blob URL 만들어 store 에 동봉.
     // docx/hwp/pdf 는 미리보기 없이 카드만.
@@ -147,7 +173,8 @@ export default function HomeScreen({
         // 여러 장(여러 페이지) 지원 + 이미지는 업로드 전 자동 압축(413 방지).
         const extractedText = await extractAllText(files, postEcExtract, {
           caseId,
-          service: '근로계약서',
+          service,
+          firstResult,
         });
 
         updateEc(caseId, {
@@ -197,7 +224,8 @@ export default function HomeScreen({
         //   3) (사용자 확인·수정) /wr/[caseUid]/text — '분석 시작' 시 postReviewWorkRules 호출.
         const wrText = await extractAllText(files, postEcExtract, {
           caseId,
-          service: '취업규칙',
+          service,
+          firstResult,
         });
         const wrCls = await postWrClassify(wrText).catch(() => null);
 

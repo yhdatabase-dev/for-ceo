@@ -1,7 +1,8 @@
 'use client';
 
 /**
- * 익명 방문 핑 — fire-and-forget POST /api/cgr/track.
+ * 익명 방문 핑 — fire-and-forget POST /api/cgr/track/visits.
+ * 개발표준정의서 API 엔드포인트: 리소스 visits (기존: /api/v1/track)
  *
  * 방문수·DAU/WAU/MAU 집계용. 방문자 식별자는 localStorage 의 **익명 uuid**(개인정보
  * 아님). 원시 IP·이름 등은 보내지 않는다. WarmupPing 과 동일하게 마운트 1회, 실패

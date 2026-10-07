@@ -27,6 +27,7 @@ from app.core.logging import get_logger, setup as setup_logging
 
 setup_logging()  # 'cgr' 네임스페이스 로거 stderr 구성 (CGR_LOG_LEVEL, 기본 INFO)
 log = get_logger(__name__)
+# 개발표준정의서 LLM 연동: API 키가 없으면 mock 으로 전환, 로컬·단위·자동화 테스트는 실호출하지 않는다 (기존: 키가 없으면 실패)
 config.init_llm()  # 키가 없으면 가짜 LLM 으로 연결
 
 
@@ -49,6 +50,7 @@ app = FastAPI(
 # ─── CORS — 허용 출처 화이트리스트 (OWASP A05: 와일드카드+credentials 금지) ───
 # 실제 호출은 프론트 BFF(서버사이드)라 CORS 가 필수는 아니지만, 보안 점검 기준상
 # 출처를 env(CGR_ALLOWED_ORIGINS, 콤마구분)로 제한한다. 미설정 시 로컬 프론트 주소.
+# 개발표준정의서 Directory 구조: 환경설정 값은 환경변수로 주입하고 /app/core/config.py 한 곳에서만 읽는다 (기존: main.py 에서 환경변수 직접 읽음, 기본값에 운영 도메인 포함)
 _allowed_origins = config.get_allowed_origins()
 app.add_middleware(
     CORSMiddleware,
@@ -89,6 +91,7 @@ async def _request_context(request, call_next):
 
 
 # ─── 라우터 등록 (prefix /api/cgr) ──────────
+# 개발표준정의서 API 엔드포인트: 서비스 코드 접두 /api/cgr 는 main.py 한 곳에서 정의, 버전 세그먼트 없음 (기존: /api/v1)
 API_PREFIX = "/api/cgr"
 app.include_router(api_router, prefix=API_PREFIX)
 

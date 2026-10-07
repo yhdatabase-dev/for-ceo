@@ -8,7 +8,7 @@
  */
 import { defineConfig } from '@playwright/test';
 
-// CI 는 next start(3000), 로컬은 dev 서버 포트
+// CI 는 next start(3000), 로컬은 dev 서버 포트 — 루트 .env 의 CGR_FRONTEND_PORT (기존: 3000 고정)
 const PORT = process.env.CI ? 3000 : Number(process.env.CGR_FRONTEND_PORT || 18091);
 
 export default defineConfig({

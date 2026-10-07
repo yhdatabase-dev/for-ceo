@@ -1,5 +1,7 @@
 """사용량·업로드·LLM 호출 기록 저장소 — PostgreSQL.
 
+테이블정의서 app.tb_cntn_rcd · app.tb_file_uld_rcd · ai.tb_llm_clot_log 에 기록 (기존: SQLite events.db).
+
 - app.tb_cntn_rcd     접속 기록 : 익명 방문 핑
 - app.tb_file_uld_rcd 파일 업로드 기록 : 업로드 메타 (원본 파일은 저장하지 않음)
 - ai.tb_llm_clot_log  LLM 호출 로그 : 검토 입력/출력 (PII 는 호출 측에서 마스킹)

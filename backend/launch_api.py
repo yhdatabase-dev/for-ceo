@@ -1,5 +1,7 @@
 """FastAPI 백엔드 launcher — 포트는 CGR_BACKEND_PORT (루트 .env, 기본 18081).
 
+개발표준정의서 Directory 구조: 환경설정 값은 환경변수로 주입하고 /app/core/config.py 한 곳에서만 읽는다 (기존: 포트 8503 고정, PYTHONPATH 를 덮어씀).
+
 사용:
     python launch_api.py
     # 또는 reload 모드:

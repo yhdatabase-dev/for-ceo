@@ -16,6 +16,8 @@ from app.schemas.ec.request import ClassifyIn
 from app.schemas.ec.response import ClassifyResultOut, JobStartOut
 from app.services.ec import classify as classify_service
 
+# 프로그램명세서 AI-P02-003: POST /api/cgr/ec/classifications + GET /classifications/{job_id}
+#   (기존: /api/v1/ec/classify/start, /classify/result/{job_id})
 router = APIRouter(tags=["employment_contract"])
 
 

@@ -33,5 +33,6 @@ def pytest_configure(config):
     os.environ["CGR_DB_PASSWORD"] = "test"
     os.environ["CGR_DISABLE_CACHE"] = "1"        # LLM 캐시 디스크 쓰기 금지
     os.environ["CGR_API_KEY"] = "test-api-key"
-    # LLM 실호출 금지 — 내장 가짜 LLM 으로 고정
+    # 개발표준정의서 LLM 연동: API 키가 없으면 mock 으로 전환, 로컬·단위·자동화 테스트는 실호출하지 않는다
+    #   (기존: 무효 키를 넣어 호출 시 실패하게 함, 변수 이름 PGHOST·API_KEY → CGR_ 접두)
     os.environ["CGR_LLM_MOCK"] = "1"

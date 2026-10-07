@@ -8,6 +8,8 @@ from app.core.upload import anon_visitor
 from app.repositories.shared import analytics
 from app.schemas.track.request import TrackIn
 
+# 개발표준정의서 API 엔드포인트: /api/cgr/<도메인>/<리소스> — 복수형 케밥, 동사·버전 금지
+#   POST /api/cgr/track/visits (기존: /api/v1/track)
 router = APIRouter(tags=["track"])
 
 

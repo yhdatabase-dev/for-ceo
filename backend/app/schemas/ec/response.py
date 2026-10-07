@@ -42,10 +42,18 @@ class EcReviewOut(BaseModel):
 class JobStartOut(BaseModel):
     job_id: str
 
+# 프로그램명세서 AI-P02-001: 검토 건 번호(case_id)는 서버가 UUID 로 발급해 응답에 돌려준다.
+#   비동기 잡이라 접수 응답에서 바로 돌려줘 화면이 그 번호로 진행한다. (기존: job_id 만 반환)
+class ExtractStartOut(BaseModel):
+    job_id: str
+    case_id: str = Field(..., description="검토 건 식별자 (서버 생성 UUID)")
+
 class ExtractResultOut(BaseModel):
     status: str = Field(..., description="pending | done | error")
     extracted_text: str | None = None
     filename: str = ""
+    # 프로그램명세서 AI-P02-001: 검토 건 번호(case_id)는 서버가 UUID 로 발급해 응답에 돌려준다.
+    case_id: str = ""
     error: str | None = None
     elapsed_sec: float = 0.0
     model: str = ""

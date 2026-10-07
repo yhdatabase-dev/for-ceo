@@ -18,6 +18,7 @@ primary_region = "nrt"
 
 [env]
   PORT = "8080"
+  # 개발표준정의서 Directory 구조: 환경변수 이름을 CGR_ 접두로 통일 (기존: OPENAI_MODEL·API_KEY)
   CGR_ENVIRONMENT = "prod"
   # 로컬 기본값(config.DEFAULT_LLM_MODEL)과 반드시 일치 — 모델이 다르면 답변·거부
   # 동작이 달라진다. gpt-4o-mini 는 정당한 질문도 과하게 거부함.

@@ -9,6 +9,8 @@ from app.schemas.wr.response import (
     ReviewSummaryOut,
 )
 
+# 개발표준정의서 API 엔드포인트: /api/cgr/<도메인>/<리소스> — 복수형 케밥, 동사·버전 금지
+#   GET /api/cgr/wr/review-summaries/{case_id} (기존: /api/v1/review/{case_id})
 router = APIRouter(tags=["review"])
 
 

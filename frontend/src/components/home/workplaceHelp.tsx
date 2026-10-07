@@ -1,6 +1,8 @@
 /**
  * 사업장 정보 라벨 호버 문구.
  *
+ * 개발표준정의서 File Name: 컴포넌트 파일은 PascalCase (기존: workplaceHelp.tsx)
+ *
  * 백엔드 `cgr/web/review_app/help_text.py` 의 풀이를 React JSX 로 옮긴 것.
  * "~인지" 식 단답형 대신 일반 사장님이 읽고 바로 이해할 수 있는 톤으로 다시 씀.
  */

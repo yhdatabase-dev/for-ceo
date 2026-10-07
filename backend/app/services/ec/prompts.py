@@ -112,6 +112,7 @@ def build_structure_user_prompt(extracted_text: str) -> str:
 def _current_minimum_wage_block() -> str:
     """DB(tb_yr_lwprc_wage) 에서 오늘 시행 중인 최저임금을 읽어 LLM 이 임금 항목
     검토 시 즉시 참조 가능한 블록 생성. DB 조회 실패 시 빈 문자열.
+    테이블정의서 ai.tb_yr_lwprc_wage 조회 (기존: SQLite 뷰 v_minimum_wage_current).
 
     이 블록을 analyze user prompt 머리에 박아 system prompt 의 캐시 키를 흔들지 않으면서도
     "현행 최저임금 미달" 판정을 가능하게 한다. (generate 단계엔 이미 하드코딩 돼 있어

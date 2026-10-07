@@ -17,6 +17,8 @@ from app.schemas.ec.request import StructureIn
 from app.schemas.ec.response import JobStartOut, StructureResultOut
 from app.services.ec import structure as structure_service
 
+# 프로그램명세서 AI-P02-002: POST /api/cgr/ec/structures + GET /structures/{job_id}
+#   (기존: /api/v1/ec/structure/start, /structure/result/{job_id})
 router = APIRouter(tags=["employment_contract"])
 
 

@@ -9,6 +9,7 @@ import { getCase } from '@/features/history/store';
 import type { CaseEntry } from '@/features/history/store';
 import type { DocumentType } from '@/types/review';
 import styles from './LoadingScreen.module.css';
+// 프로그램명세서 화면 URL: 단계별 이동 경로를 lib/routes 로 (기존: /review/[id]/... 직접 작성)
 import { routes } from '@/lib/routes';
 
 /**

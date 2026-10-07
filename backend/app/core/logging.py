@@ -71,6 +71,7 @@ def setup(level: str | None = None) -> None:
     global _CONFIGURED
     if _CONFIGURED:
         return
+    # 개발표준정의서 Directory 구조: 환경설정 값은 환경변수로 주입하고 /app/core/config.py 한 곳에서만 읽는다 (기존: os.environ 직접 읽음)
     from app.core.config import get_log_level
 
     lvl_name = (level or get_log_level()).upper()

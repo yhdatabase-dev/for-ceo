@@ -1,5 +1,9 @@
 """환경설정 — 모든 설정값은 환경변수로 받고 이 모듈 한 곳에서 읽는다.
 
+개발표준정의서 Directory 구조: 환경설정 값은 환경변수로 주입하고 /app/core/config.py 한 곳에서만 읽는다.
+(기존: 모듈 8곳이 환경변수를 각자 읽고, 키는 .streamlit/secrets.toml · 모델명은 admin_settings.json,
+ DB 는 backend/.env 에서 읽음. 변수 이름도 PGHOST·API_KEY·OPENAI_MODEL 등 → CGR_ 접두로 통일)
+
 값의 출처(앞이 우선):
   1. 프로세스 환경변수 (운영·컨테이너는 이것만 쓴다)
   2. 저장소 루트 .env (로컬 개발용, git 제외. 항목 설명은 .env.example)
@@ -73,6 +77,7 @@ def get_log_level() -> str:
     return _env("CGR_LOG_LEVEL", "INFO").upper()
 
 
+# 로컬 포트는 산업안전보건(18080/18090)과 겹치지 않게 18081/18091 (기존: 8503/3000 코드 고정)
 def get_backend_port() -> int:
     return _env_int("CGR_BACKEND_PORT", DEFAULT_BACKEND_PORT)
 
@@ -135,6 +140,7 @@ def _real_api_key() -> str:
     return _env("OPENAI_API_KEY")
 
 
+# 개발표준정의서 LLM 연동: API 키가 없으면 mock 으로 전환, 로컬·단위·자동화 테스트는 실호출하지 않는다 (기존: 키가 없으면 실패)
 def is_llm_mock() -> bool:
     """키가 없거나 CGR_LLM_MOCK=1 이면 mock 으로 동작한다. 운영(prod)에서는 mock 을 쓰지 않는다."""
     if is_prod():

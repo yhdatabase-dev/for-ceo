@@ -1,5 +1,7 @@
 """업로드 추적 — 메타만 기록한다. 원본 파일은 저장하지 않는다(처리용 임시 파일은 처리 후 삭제).
 
+프로그램명세서 WEB-P02-001: "올린 사진은 검토가 끝나면 바로 삭제" (기존: 원본 파일을 data/uploads 에 보관).
+
 - 메타는 app.tb_file_uld_rcd (analytics.add_upload).
 - 업로더는 **익명화**: 원시 IP 를 저장하지 않고 IP+UA+날짜 단방향 해시(visitor)만 남긴다.
 - 보관기간(retention) 초과분은 analytics.cleanup_old_uploads 로 자동 삭제.
@@ -24,6 +26,7 @@ ALLOWED_UPLOAD_EXTS = {
     "png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "webp", "heic", "heif",
     "pdf", "docx", "doc", "hwp", "hwpx", "txt",
 }
+# 개발표준정의서 Directory 구조: 환경설정 값은 환경변수로 주입하고 /app/core/config.py 한 곳에서만 읽는다 (기존: 20MB 코드 고정)
 MAX_UPLOAD_BYTES = config.get_max_upload_mb() * 1024 * 1024  # CGR_MAX_UPLOAD_MB (운영 리버스프록시의 client_max_body_size 와 함께)
 
 # 확장자별 매직바이트 서명 — 확장자만 바꿔치기한 위장 파일 차단 (내용 기반 2차 검증).

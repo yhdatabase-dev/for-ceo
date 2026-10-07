@@ -25,6 +25,8 @@ from app.api.routers.wr import revision as wr_revision
 from app.api.routers.wr import summary as wr_summary
 
 api_router = APIRouter()
+# 개발표준정의서 API 엔드포인트: 도메인 prefix 는 이 파일 한 곳에서 선언, 도메인은 백엔드 도메인 식별자와 같게
+#   (기존: 취업규칙 prefix /review → /wr)
 
 # ── 취업규칙 (wr) ──
 api_router.include_router(wr_review.router, prefix="/wr")

@@ -1,5 +1,7 @@
 'use client';
 
+// 프로그램명세서 LC-002-01 계약서 내용 확인: 화면 URL /cgr/ec/[caseUid]/contract (기존: /review/[id]/ec/review)
+
 import { useEffect, useMemo, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';

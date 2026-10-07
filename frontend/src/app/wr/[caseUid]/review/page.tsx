@@ -1,5 +1,7 @@
 'use client';
 
+// 프로그램명세서 WR-002-01 검토결과 확인: 화면 URL /cgr/wr/[caseUid]/review (기존: /review/[id])
+
 import { useCallback, useEffect, useMemo, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 

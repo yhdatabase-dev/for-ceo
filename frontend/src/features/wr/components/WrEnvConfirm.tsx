@@ -17,6 +17,7 @@
 
 import { useState } from 'react';
 
+// 개발표준정의서 계층 구조: 도메인 간 직접 참조 금지 — 근로계약서 ClassifyConfirm 스타일을 복사해 따로 둠 (기존: ./ClassifyConfirm.module.css 공유)
 import styles from './WrEnvConfirm.module.css';
 
 /** 근로환경 4항목 — WorkplaceContext 의 취업규칙용 필드와 1:1. */

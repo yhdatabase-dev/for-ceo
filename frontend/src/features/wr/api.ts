@@ -1,5 +1,8 @@
 /**
- * 검토 API — `/api/cgr/review` (BFF) 를 통한 POST/GET.
+ * 취업규칙 검토 API — `/api/cgr/wr/*` (BFF) 를 통한 POST/GET.
+ *
+ * 개발표준정의서 Directory 구성도: 업무 기능은 features/<도메인>/ (기존: lib/api/review.ts)
+ * 개발표준정의서 API 엔드포인트: /api/cgr/wr/<리소스> (기존: /api/v1/review/start 등)
  *
  * 문서 종류(document_type) 분기:
  *  - 'work_rules' (기본) → ReviewFullOut (5-Bucket)

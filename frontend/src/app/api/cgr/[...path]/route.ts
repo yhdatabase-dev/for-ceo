@@ -2,6 +2,10 @@
  * BFF — 클라이언트 `/api/cgr/*` → 백엔드 FastAPI `{API_BASE}/api/cgr/*` 프록시.
  *
  * 서버측에서만 `CGR_API_KEY` 환경변수 사용 → 클라이언트에 키 노출 없음.
+ *
+ * 개발표준정의서 API 엔드포인트: 백엔드 접두 /api/cgr (기존: /api/v1)
+ * 개발표준정의서 Directory 구조: 백엔드 주소는 서버 전용 환경변수 CGR_API_BASE — 브라우저에 노출되지 않게
+ *   (기존: NEXT_PUBLIC_API_BASE, 기본 포트 8503)
  * GET / POST 모두 처리 (파일 업로드 multipart 포함).
  */
 import { NextRequest, NextResponse } from 'next/server';

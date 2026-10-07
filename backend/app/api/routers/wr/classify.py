@@ -11,6 +11,8 @@ from app.schemas.wr.request import WrClassifyIn
 from app.schemas.wr.response import JobStartOut, WrClassifyResultOut
 from app.services.wr import classify as wr_classify_service
 
+# 개발표준정의서 API 엔드포인트: /api/cgr/<도메인>/<리소스> — 복수형 케밥, 동사·버전 금지
+#   POST /api/cgr/wr/classifications + GET /classifications/{job_id} (기존: /api/v1/review/classify/start, /classify/result/{job_id})
 router = APIRouter(tags=["review"])
 
 

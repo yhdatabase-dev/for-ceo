@@ -12,6 +12,8 @@ from app.integrations.docx_export import (
 )
 from app.schemas.wr.request import ComparisonDocxIn, GenerateDocxIn
 
+# 프로그램명세서 WEB-P03-004: POST /api/cgr/wr/comparison-documents (기존: /api/v1/review/comparison-docx)
+# 개발표준정의서 API 엔드포인트: /api/cgr/<도메인>/<리소스> — 복수형 케밥, 동사·버전 금지 — 수정본 Word 는 /revision-documents (기존: /api/v1/review/generate-docx)
 router = APIRouter(tags=["review"])
 
 

@@ -111,6 +111,8 @@ export interface EcExtractOut {
   filename: string;
   elapsed_sec: number;
   model: string;
+  /** 프로그램명세서 AI-P02-001: 검토 건 번호(case_id)는 서버가 UUID 로 발급해 응답에 돌려준다 (기존: 응답에 없음) */
+  case_id: string;
 }
 
 /** 8섹션 필드의 단위 값. `value` 는 핵심 수치/문구, `note` 는 단서 조항. */

@@ -173,21 +173,30 @@ export async function extractAllText(
   opts: {
     signal?: AbortSignal;
     onProgress?: (done: number, total: number) => void;
-    /** 리뷰 세션 id — 올린 원본 파일을 서버에 보관해 관리자 로그와 연결(여러 장이면 모두 같은 id). */
+    /** 검토 건 번호 — 업로드 기록을 검토 건과 연결(여러 장이면 모두 같은 번호). */
     caseId?: string;
     /** 보관 서비스 라벨 — 근로계약서 / 취업규칙. */
     service?: string;
+    /**
+     * 첫 장 추출 결과 — 첫 장은 검토 건 번호(case_id)를 서버에서 받으려고 미리 접수하므로
+     * 여기서는 그 결과만 기다린다.
+     * 프로그램명세서 AI-P02-001: case_id 는 서버 발급, 첫 장 응답의 번호를 이후 장에 싣는다.
+     * (기존: 모든 장을 이 함수에서 접수)
+     */
+    firstResult?: Promise<{ extracted_text: string }>;
   } = {},
 ): Promise<string> {
   const list = files.length > 0 ? files : [];
   const parts: string[] = [];
   for (let i = 0; i < list.length; i += 1) {
-    const prepared = await compressImageFile(list[i]);
-    const { extracted_text } = await extractFn(prepared, {
-      signal: opts.signal,
-      caseId: opts.caseId,
-      service: opts.service,
-    });
+    const { extracted_text } =
+      i === 0 && opts.firstResult
+        ? await opts.firstResult
+        : await extractFn(await compressImageFile(list[i]), {
+            signal: opts.signal,
+            caseId: opts.caseId,
+            service: opts.service,
+          });
     parts.push(pageSeparator(i, list.length) + (extracted_text ?? ''));
     opts.onProgress?.(i + 1, list.length);
   }

@@ -1,5 +1,7 @@
 'use client';
 
+// 프로그램명세서 WR-003-01 신구대조표 확인: 화면 URL /cgr/wr/[caseUid]/comparison (기존: /review/[id]/wr/contract)
+
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 

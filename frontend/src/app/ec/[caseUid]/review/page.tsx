@@ -1,5 +1,7 @@
 'use client';
 
+// 프로그램명세서 LC-003-01 검토결과: 화면 URL /cgr/ec/[caseUid]/review (기존: /review/[id]/ec)
+
 import {
   Fragment,
   useCallback,

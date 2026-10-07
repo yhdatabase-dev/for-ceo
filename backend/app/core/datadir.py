@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from app.core import config
+from app.core import config  # 개발표준정의서 Directory 구조: 환경설정 값은 환경변수로 주입하고 /app/core/config.py 한 곳에서만 읽는다 (기존: os.environ 직접 읽음)
 
 # backend/cgr/datadir.py → parents[1] = backend
 _BACKEND_ROOT = Path(__file__).resolve().parents[2]

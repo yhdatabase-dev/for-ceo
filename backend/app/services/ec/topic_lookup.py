@@ -59,6 +59,7 @@ def _build_item_to_topics() -> dict[str, list[tuple[str, str]]]:
 @lru_cache(maxsize=1)
 def _content_sections() -> frozenset[str]:
     """본문(원문/풀이)이 있는 (주제명|섹션번호) 집합 — DB(tb_tpc_mstr·tb_tpc_sctn) 기준.
+    테이블정의서 테이블명으로 조회 (기존: SQLite topic · topic_section).
 
     빈 섹션(예: '임금 3.3' — body 둘 다 공란)을 참고자료에서 거르는 데 쓴다.
     DB 접근 실패 시 빈 집합 → 필터하지 않음(보수적)."""

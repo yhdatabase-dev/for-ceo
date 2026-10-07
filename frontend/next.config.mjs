@@ -1,10 +1,12 @@
 import { loadRootEnv } from './scripts/root-env.mjs';
 
-// 저장소 루트 .env 를 백엔드와 함께 쓴다(이미 있는 환경변수가 우선).
+// 개발표준정의서 Directory 구조: 환경설정 값은 환경변수로 주입 — 저장소 루트 .env 하나를 백엔드와 함께 씀 (기존: frontend/.env.local)
+// 이미 있는 환경변수가 우선.
 loadRootEnv();
 
 /** @type {import('next').NextConfig} */
-// 서비스 화면 경로 접두 — 기본 /cgr. 빈 값으로 지정하면 basePath 없이 루트에 배포.
+// 개발표준정의서 API 엔드포인트(화면 경로): 각 서비스 앱은 basePath 로 /cgr 접두를 갖는다 (기존: 접두 없음)
+// 빈 값으로 지정하면 basePath 없이 루트에 배포.
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '/cgr';
 
 const nextConfig = {

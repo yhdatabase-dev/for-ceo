@@ -13,6 +13,7 @@ from app.core.security import require_api_key
 from app.integrations.docx_export import DOCX_MIMETYPE, text_to_docx
 from app.schemas.ec.request import GenerateDocxIn
 
+# 프로그램명세서 WEB-P02-004: POST /api/cgr/ec/documents (기존: /api/v1/ec/generate-docx)
 router = APIRouter(tags=["employment_contract"])
 
 

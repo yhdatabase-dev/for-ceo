@@ -7,6 +7,8 @@ from fastapi.responses import JSONResponse
 from app.core.security import require_api_key
 from app.repositories import base as _db
 
+# 개발표준정의서 API 엔드포인트: /api/cgr/<도메인>/<리소스> — 복수형 케밥, 동사·버전 금지
+#   GET /api/cgr/topics/sections (기존: /api/v1/topics/corpus)
 router = APIRouter(tags=["topics"])
 
 
@@ -24,6 +26,8 @@ router = APIRouter(tags=["topics"])
 )
 def get_corpus() -> JSONResponse:
     """tb_tpc_mstr(주제) + tb_tpc_sctn(섹션) → 중첩 dict.
+
+    테이블정의서 ai.tb_tpc_mstr · ai.tb_tpc_sctn 조회 (기존: SQLite topic · topic_section).
 
     빈 결과면 빈 dict `{}` — 프론트는 fallback 으로 빌드타임 JSON 을 쓰지 않고
     백엔드 응답을 그대로 신뢰한다.

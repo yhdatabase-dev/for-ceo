@@ -1,6 +1,9 @@
 /**
  * 근로계약서 풀 이식 — 4단계 API 클라이언트.
  *
+ * 개발표준정의서 Directory 구성도: 업무 기능은 features/<도메인>/ (기존: lib/api/ec.ts)
+ * 프로그램명세서 AI-P02-001~009·WEB-P02-004: /api/cgr/ec/<리소스> (기존: /api/v1/ec/extract/start 등)
+ *
  * 기존 `1. 근로계약서/기존/src/api/contractApi.js` 와 1:1 매핑.
  * 백엔드 라우터: `cgr/api/routes/ec.py`
  *
@@ -57,22 +60,37 @@ async function pollJob<T>(
   }
 }
 
-/** 1단계: 파일 → 텍스트 (이미지면 OCR) — 비동기 잡(이미지 OCR 이 느릴 수 있어 타임아웃 우회). */
-export async function postEcExtract(
+/**
+ * 1단계(접수): 파일 1건 추출 요청 — job_id 와 서버가 발급한 검토 건 번호(case_id)를 바로 받는다.
+ * 프로그램명세서 AI-P02-001: 검토 건 번호(case_id)는 서버가 UUID 로 발급해 응답에 돌려준다.
+ *   첫 장은 case_id 없이 보내 번호를 받고, 이후 장은 그 번호를 실어 보낸다.
+ *   (기존: 브라우저가 tmp_ 번호를 만들어 보내고 job_id 만 받음)
+ */
+export async function startEcExtract(
   file: File,
   opts: { signal?: AbortSignal; caseId?: string; service?: string } = {},
-): Promise<EcExtractOut> {
+): Promise<{ jobId: string; caseId: string }> {
   const form = new FormData();
   form.append('file', file);
-  // 원본 파일을 서버에 보관해 관리자 로그와 연결 (case_id) — service 로 라벨 분기(EC/취업규칙 공용 추출).
+  // 업로드 기록을 검토 건과 연결 (case_id) — service 로 라벨 분기(EC/취업규칙 공용 추출).
   if (opts.caseId) form.append('case_id', opts.caseId);
   if (opts.service) form.append('service', opts.service);
-  const { job_id } = await apiPostForm<{ job_id: string }>('/ec/extractions', form, {
-    signal: opts.signal,
-  });
+  const { job_id, case_id } = await apiPostForm<{ job_id: string; case_id: string }>(
+    '/ec/extractions',
+    form,
+    { signal: opts.signal },
+  );
+  return { jobId: job_id, caseId: case_id };
+}
+
+/** 1단계(결과): 추출 잡 완료까지 폴링 — 이미지 OCR 이 느릴 수 있어 비동기 잡으로 타임아웃 우회. */
+export async function waitEcExtract(
+  jobId: string,
+  opts: { signal?: AbortSignal } = {},
+): Promise<EcExtractOut> {
   return pollJob<EcExtractOut>(
     (id) => `/ec/extractions/${id}`,
-    job_id,
+    jobId,
     (res) =>
       res.extracted_text != null
         ? ({
@@ -80,10 +98,20 @@ export async function postEcExtract(
             filename: (res.filename as string) ?? '',
             elapsed_sec: (res.elapsed_sec as number) ?? 0,
             model: (res.model as string) ?? '',
+            case_id: (res.case_id as string) ?? '',
           } as EcExtractOut)
         : undefined,
     { signal: opts.signal, label: '문서 추출' },
   );
+}
+
+/** 1단계: 파일 → 텍스트 (이미지면 OCR) — 접수 + 결과 대기. */
+export async function postEcExtract(
+  file: File,
+  opts: { signal?: AbortSignal; caseId?: string; service?: string } = {},
+): Promise<EcExtractOut> {
+  const { jobId } = await startEcExtract(file, opts);
+  return waitEcExtract(jobId, { signal: opts.signal });
 }
 
 /** 2단계: 텍스트 → 8섹션 구조화 JSON — 비동기 잡. */

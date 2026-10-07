@@ -13,6 +13,7 @@ from app.schemas.ec.request import ValidateFieldIn
 from app.schemas.ec.response import ValidateFieldOut
 from app.services.ec import validate_field as validate_field_service
 
+# 프로그램명세서 AI-P02-006: POST /api/cgr/ec/field-validations (기존: /api/v1/ec/validate-field)
 router = APIRouter(tags=["employment_contract"])
 
 

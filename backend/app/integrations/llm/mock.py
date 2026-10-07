@@ -7,6 +7,7 @@
 응답 문구에는 "[가짜 응답]" 이 붙는다. 판정 품질 확인용이 아니라 화면·API 흐름 확인용이다.
 
 사용: app.core.config.init_llm() 이 mock 일 때 start() 를 부른다.
+개발표준정의서 LLM 연동: API 키가 없으면 mock 으로 전환, 로컬·단위·자동화 테스트는 실호출하지 않는다 (신규).
 """
 from __future__ import annotations
 

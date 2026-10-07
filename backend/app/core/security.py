@@ -1,6 +1,9 @@
 """API 인증 — X-API-Key 헤더 검증.
 
 키는 환경변수 CGR_API_KEY (app.core.config). 미설정이면 503 으로 막는다(보안 사고 방지).
+
+개발표준정의서 비밀 관리: API 키는 환경변수로 주입한다
+(기존: 환경변수 API_KEY 또는 .streamlit/secrets.toml, 관리자 키 별도 — 관리자 기능은 삭제).
 """
 from __future__ import annotations
 

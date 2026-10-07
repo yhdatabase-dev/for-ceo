@@ -1,5 +1,7 @@
 'use client';
 
+// 프로그램명세서 LC-004-01 개선안 미리보기: 화면 URL /cgr/ec/[caseUid]/preview (기존: /review/[id]/ec/contract)
+
 import { useCallback, useEffect, useMemo, useRef, useState, use } from 'react';
 import Link from 'next/link';
 

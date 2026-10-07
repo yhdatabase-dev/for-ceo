@@ -71,3 +71,28 @@ def test_upload_rejects_disguised_file(client):
         files={"file": ("fake.png", b"MZ\x90\x00" + b"\x00" * 32, "image/png")},
     )
     assert r.status_code == 400
+
+
+def test_extraction_issues_case_id(client):
+    """프로그램명세서 AI-P02-001: 검토 건 번호(case_id)는 서버가 UUID 로 발급한다.
+
+    번호 없이 보내면 새로 발급하고, 받은 번호를 실어 보내면(여러 장) 그대로 쓴다.
+    """
+    import uuid
+
+    r = client.post(
+        f"{API}/ec/extractions",
+        headers=KEY,
+        files={"file": ("contract.txt", "근로계약서".encode(), "text/plain")},
+    )
+    assert r.status_code == 200
+    issued = r.json()["case_id"]
+    assert str(uuid.UUID(issued)) == issued
+
+    r2 = client.post(
+        f"{API}/ec/extractions",
+        headers=KEY,
+        files={"file": ("page2.txt", "2페이지".encode(), "text/plain")},
+        data={"case_id": issued},
+    )
+    assert r2.json()["case_id"] == issued

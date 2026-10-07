@@ -2,6 +2,9 @@
  * 검토 건 저장소 — 근로계약서·취업규칙 검토 건을 브라우저에 보관하고 검토 이력을 제공한다.
  * 도메인별 단계 상태 갱신은 features/ec/store.ts · features/wr/store.ts 가 맡는다.
  *
+ * 개발표준정의서 프론트엔드 식별자: 전역 상태는 도메인별 features/<domain>/store.ts, 전역 단일 스토어를 두지 않는다
+ *   (기존: lib/reviewStore.ts 하나에 근로계약서·취업규칙 상태와 보관을 모두 둠)
+ *
  * 모듈 메모리 (브라우저 탭 단위).
  *
  * 페이지 간 데이터 전달:
@@ -155,16 +158,6 @@ function _pruneIndex(keep: number) {
     }
   }
   _writeIndex(ids.slice(0, keep));
-}
-
-/** 임시 case_id 생성 — POST 응답에 case_id 가 오면 그걸로 교체. */
-export function makeTempCaseId(): string {
-  const ts = new Date()
-    .toISOString()
-    .replace(/[-:T.Z]/g, '')
-    .slice(0, 14);
-  const rand = Math.random().toString(36).slice(2, 6);
-  return `tmp_${ts}_${rand}`;
 }
 
 interface StartCaseOptions {

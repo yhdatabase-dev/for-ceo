@@ -1,6 +1,7 @@
 """통합 DB — PostgreSQL 연결 helper.
 
-스키마 ai · app. 접속 정보는 app.core.config.get_db_conninfo.
+테이블정의서: CGR 테이블은 PostgreSQL 스키마 ai · app 의 tb_ 테이블로 조회한다
+(기존: SQLite master.db · events.db 파일). 접속 정보는 app.core.config.get_db_conninfo.
 
 - 모든 쿼리는 `with connect() as conn:` 컨텍스트 매니저로 — 자동 commit/rollback
 - 행은 dict 로 반환 → 컬럼명으로 접근 (row['name'])
