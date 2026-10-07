@@ -1,7 +1,7 @@
 """사용량·업로드·LLM 호출 기록 저장소 — PostgreSQL.
 
 - app.tb_cntn_rcd     접속 기록 : 익명 방문 핑
-- app.tb_file_uld_rcd 파일 업로드 기록 : 업로드 메타. 실제 파일은 datadir.uploads_dir() 에 별도 저장
+- app.tb_file_uld_rcd 파일 업로드 기록 : 업로드 메타 (원본 파일은 저장하지 않음)
 - ai.tb_llm_clot_log  LLM 호출 로그 : 챗봇·검토 입력/출력 (PII 는 호출 측에서 마스킹)
 
 방문자 식별자는 익명 uuid·해시 — 원시 IP·개인정보는 저장하지 않는다.

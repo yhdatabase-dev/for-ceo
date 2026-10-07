@@ -1,7 +1,6 @@
 """근로계약서 33-매핑 위반 분석."""
 from __future__ import annotations
 
-import time
 from typing import Any
 
 from fastapi import (
@@ -16,55 +15,13 @@ from app.core.config import get_llm_model
 from app.core.logging import bind_context, get_logger
 from app.core.security import require_api_key
 from app.schemas.ec.request import AnalyzeIn
-from app.schemas.ec.response import AnalyzeOut, AnalyzeResultOut, JobStartOut
+from app.schemas.ec.response import AnalyzeResultOut, JobStartOut
 from app.services.ec import analyze as analyze_service
 
 log = get_logger(__name__)
 
 router = APIRouter(tags=["employment_contract"])
 
-
-@router.post(
-    "/analyses/sync",
-    response_model=AnalyzeOut,
-    summary="구조화 데이터 + 컨텍스트 → 33매핑 위반 분석",
-    dependencies=[Depends(require_api_key)],
-)
-def post_analyze(body: AnalyzeIn):
-    bind_context(case=body.case_id)  # 로그 상관 — 이후 이 요청·잡의 모든 로그에 case 부착
-    t0 = time.time()
-    try:
-        result = analyze_service.run(
-            body.structured_data,
-            business_size=body.business_size,
-            worker_types=body.worker_types,
-            legal_guidelines=body.legal_guidelines,
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"분석 실패: {type(e).__name__}: {e}",
-        )
-    try:
-        import json as _json
-
-        from app.repositories.shared import analytics as _an
-
-        _an.log_interaction(
-            kind="근로계약서",
-            model=get_llm_model(),
-            input_text=_json.dumps(body.structured_data, ensure_ascii=False)[:4000],
-            output_text=_json.dumps(result, ensure_ascii=False)[:8000],
-            visitor="",
-            case_id=body.case_id or None,
-        )
-    except Exception as e:
-        log.warning("무시된 예외 — %s: %s", type(e).__name__, e)
-    return AnalyzeOut(
-        analysis_result=result,
-        elapsed_sec=round(time.time() - t0, 2),
-        model=get_llm_model(),
-    )
 
 @router.post(
     "/analyses",

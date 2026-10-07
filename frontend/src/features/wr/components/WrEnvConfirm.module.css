@@ -1,0 +1,314 @@
+/* ─────────────────────────────────────────────
+ *  ClassifyConfirm — AI 1차 분류 확인 배너
+ *  데스크톱 카드·모바일 화면 공용 (fluid width)
+ * ───────────────────────────────────────────── */
+
+.card {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-brand);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── 초기(asking) 행 ── */
+.askRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+  border-radius: var(--r-md);
+}
+
+.askBody {
+  flex: 1;
+  min-width: 200px;
+}
+
+.line1 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.line1 strong {
+  font-weight: 800;
+  color: var(--color-brand-strong);
+}
+
+.line2 {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  min-width: 0;
+}
+
+.miniChip {
+  flex: none;
+  padding: 2px 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+}
+
+.reason {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.askActions {
+  flex: none;
+  display: flex;
+  gap: 8px;
+}
+
+/* ── 버튼 — 터치 타깃 보장 ── */
+.btnBrand {
+  min-height: 40px;
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--color-brand);
+  border: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+}
+
+.btnBrand:hover {
+  background: var(--color-brand-strong);
+}
+
+.btnBrand:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnGhost {
+  min-height: 40px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+}
+
+.btnGhost:hover {
+  background: var(--color-surface-muted);
+}
+
+/* ── 수동 선택(editing) ── */
+.head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.headText {
+  flex: 1;
+  min-width: 0;
+}
+
+.helper {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.chipGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  min-height: 40px;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-pill);
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--color-border-strong);
+}
+
+.chipActive {
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+  border-color: var(--color-brand);
+}
+
+.editActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+/* ── 확정 바(confirmed) — 슬림 ── */
+.confirmedBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 7px 12px;
+  background: var(--risk-ok-soft);
+  border: 1px solid var(--risk-ok-border);
+  border-radius: var(--r-md);
+}
+
+.confirmedCheck {
+  flex: none;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--risk-ok-text);
+}
+
+.confirmedText {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--risk-ok-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.changeBtn {
+  flex: none;
+  min-height: 32px;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-brand);
+  background: none;
+  border: none;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.changeBtn:hover {
+  background: var(--color-brand-soft);
+  text-decoration: none;
+}
+
+/* ── WrEnvConfirm 전용 — 근로환경 다항목 ── */
+/* asking 상태: 항목 칩 여러 개가 한 줄에 wrap */
+.envSummary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+/* asking 상태: 근거를 칩 아래 별도 줄로 — 전체 표시(말줄임 없음, 줄바꿈 허용) */
+.reasonBlock {
+  margin-top: 6px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--color-text-subtle);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* editing 상태: 항목별 라벨 + 3지선다 행 */
+.envRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.envRow:first-of-type {
+  border-top: none;
+}
+
+.envLabel {
+  flex: 1;
+  min-width: 130px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.envOptions {
+  flex: none;
+  display: flex;
+  gap: 6px;
+}
+
+/* ── 모바일 — 터치 타깃 ≥44px ── */
+@media (max-width: 720px) {
+  .btnBrand,
+  .btnGhost,
+  .chip {
+    min-height: 44px;
+  }
+
+  .changeBtn {
+    min-height: 44px;
+    padding: 8px 12px;
+  }
+
+  .askActions {
+    width: 100%;
+  }
+
+  .askActions .btnBrand,
+  .askActions .btnGhost {
+    flex: 1;
+  }
+
+  /* 항목 행 — 라벨/옵션 세로 적층, 옵션은 전폭 균등 분할 */
+  .envRow {
+    gap: 6px;
+  }
+
+  .envOptions {
+    width: 100%;
+  }
+
+  .envOptions .chip {
+    flex: 1;
+  }
+}

@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 
-import { postEcChat } from '@/lib/api/ec';
+import { postEcChat } from '@/features/ec/api';
 import { ApiCallError } from '@/lib/api/client';
 import type { EcChatTurn } from '@/lib/api/types';
 

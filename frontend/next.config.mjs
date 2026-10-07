@@ -4,8 +4,8 @@ import { loadRootEnv } from './scripts/root-env.mjs';
 loadRootEnv();
 
 /** @type {import('next').NextConfig} */
-// 하위경로 배포(예: /cgr)는 빌드 시 NEXT_PUBLIC_BASE_PATH=/cgr. 미설정 → basePath 없음.
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+// 서비스 화면 경로 접두 — 기본 /cgr. 빈 값으로 지정하면 basePath 없이 루트에 배포.
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '/cgr';
 
 const nextConfig = {
   reactStrictMode: true,
@@ -14,6 +14,14 @@ const nextConfig = {
   // BFF (`app/api/cgr/[...path]/route.ts`) 가 백엔드로 직접 fetch 하므로 rewrites 불필요.
   // 환경 변수: CGR_API_BASE, CGR_API_KEY 는 BFF 안에서만(서버 측) 사용.
   ...(basePath ? { basePath } : {}),
+  // 브라우저 코드(lib/basePath.ts)가 같은 값을 보도록 빌드 시 인라인
+  env: { NEXT_PUBLIC_BASE_PATH: basePath },
+  // 루트(/)로 들어오면 서비스 첫 화면으로
+  async redirects() {
+    return basePath
+      ? [{ source: '/', destination: basePath, basePath: false, permanent: false }]
+      : [];
+  },
   // ─── 보안 응답 헤더 (OWASP A05 / 국정원 점검: 클릭재킹·MIME 스니핑 등) ───
   async headers() {
     return [

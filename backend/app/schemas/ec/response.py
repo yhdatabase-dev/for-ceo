@@ -39,15 +39,6 @@ class EcReviewOut(BaseModel):
 # ─────────────────────────────────────────────
 # 1) POST /api/cgr/ec/extractions
 # ─────────────────────────────────────────────
-class ExtractOut(BaseModel):
-    """OCR/파일 추출 응답."""
-
-    extracted_text: str
-    filename: str
-    elapsed_sec: float
-    model: str
-
-# ── 1-b) 비동기 추출 (이미지 OCR 은 LLM Vision 이라 느릴 수 있음) ──
 class JobStartOut(BaseModel):
     job_id: str
 
@@ -67,32 +58,12 @@ class ClassifyResultOut(BaseModel):
     error: str | None = None
     elapsed_sec: float = 0.0
 
-class StructureOut(BaseModel):
-    structured_data: dict[str, Any] = Field(
-        ...,
-        description="8섹션(기본정보/계약사항/근로시간/휴일휴가/임금/퇴직급여/사회보험/계약체결) + 기타사항",
-    )
-    elapsed_sec: float
-    model: str
-
-# ── 2-b) 비동기 구조화 (LLM 호출) ──
 class StructureResultOut(BaseModel):
     status: str = Field(..., description="pending | done | error")
     structured_data: dict[str, Any] | None = None
     error: str | None = None
     elapsed_sec: float = 0.0
     model: str = ""
-
-class AnalyzeOut(BaseModel):
-    analysis_result: dict[str, Any] = Field(
-        ...,
-        description=(
-            "기존 prompts.json 의 analysis 출력 스키마. "
-            "`{riskLevel, overallStatus, overallOpinion, results[], finalRecommendations}`"
-        ),
-    )
-    elapsed_sec: float
-    model: str
 
 class ValidateFieldOut(BaseModel):
     적절성: str = Field(..., description="적절 | 보완필요 | 부적정")
@@ -115,14 +86,6 @@ class AnalyzeResultOut(BaseModel):
     elapsed_sec: float = 0.0
     model: str = ""
 
-class GenerateOut(BaseModel):
-    contract_text: str
-    elapsed_sec: float
-    model: str
-
-# ─────────────────────────────────────────────
-# 4-c) 비동기 계약서 생성 — start + poll (analyze 와 동일 패턴)
-# ─────────────────────────────────────────────
 class GenerateResultOut(BaseModel):
     status: str = Field(..., description="pending | done | error")
     contract_text: str | None = None

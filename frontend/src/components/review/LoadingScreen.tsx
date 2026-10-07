@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation';
 
 import Icon from '@/components/ui/Icon';
 import { useMockProgress } from '@/hooks/useMockProgress';
-import { getCase } from '@/lib/reviewStore';
-import type { CaseEntry } from '@/lib/reviewStore';
+import { getCase } from '@/features/history/store';
+import type { CaseEntry } from '@/features/history/store';
 import type { DocumentType } from '@/types/review';
 import styles from './LoadingScreen.module.css';
+import { routes } from '@/lib/routes';
 
 /**
  * 검토 진행 중 화면.
@@ -197,25 +198,25 @@ export function LoadingScreen({ reviewId }: LoadingScreenProps) {
 
       // EC 풀 이식 — phase 변화에 따라 다음 페이지로 자동 라우팅.
       const curPhase = entry.ec?.phase;
-      if (curPhase === 'review') return go(`/review/${reviewId}/ec/review`);
-      if (curPhase === 'result') return go(`/review/${reviewId}/ec`);
-      if (curPhase === 'contract') return go(`/review/${reviewId}/ec/contract`);
+      if (curPhase === 'review') return go(routes.ecContract(reviewId));
+      if (curPhase === 'result') return go(routes.ecReview(reviewId));
+      if (curPhase === 'contract') return go(routes.ecPreview(reviewId));
 
       // 취업규칙 — 추출 텍스트 확인 단계. 'analyzing' 은 라우팅하지 않음
-      // (분석 완료 시 아래 status='done' 분기가 /review/[id] 로 보냄).
+      // (분석 완료 시 아래 status='done' 분기가 /wr/[caseUid]/review 로 보냄).
       const wrPhase = entry.wr?.phase;
-      if (wrPhase === 'review') return go(`/review/${reviewId}/wr/review`);
+      if (wrPhase === 'review') return go(routes.wrText(reviewId));
       // 취업규칙 수정본 — 완료 시 contract 페이지로, 생성 중에는 status='done'
       // (기존 분석 완료) 분기가 결과 페이지로 되돌리지 않게 여기서 홀드.
-      if (wrPhase === 'contract') return go(`/review/${reviewId}/wr/contract`);
+      if (wrPhase === 'contract') return go(routes.wrComparison(reviewId));
       if (wrPhase === 'generating') return; // 생성 진행 중 — 폴링 유지
 
       // 취업규칙 등 단일 호출 흐름
       if (entry.status === 'done') {
         const target =
           entry.result?.doc === 'employment-contract'
-            ? `/review/${reviewId}/ec`
-            : `/review/${reviewId}`;
+            ? routes.ecReview(reviewId)
+            : routes.wrReview(reviewId);
         return go(target);
       }
       if (entry.status === 'error') return fail(entry.error || '알 수 없는 오류');

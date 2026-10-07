@@ -1,8 +1,8 @@
 /**
  * 배포 경로 prefix.
  *
- * - 루트 배포(Vercel 등): `NEXT_PUBLIC_BASE_PATH` 미설정 → '' (기존과 동일).
- * - 하위경로 배포(예: moellab.info/for-ceo): 빌드 시 `NEXT_PUBLIC_BASE_PATH=/for-ceo`.
+ * - 기본 `/cgr` (next.config.mjs 가 값을 정해 빌드 시 인라인).
+ * - 루트 배포는 `NEXT_PUBLIC_BASE_PATH=` (빈 값)으로 빌드.
  *
  * Next 의 `basePath`(next.config) 는 `<Link>`·router·자산만 자동 prefix 하고,
  * 원시 `fetch('/api/...')` 는 prefix 하지 않으므로 — BFF/관리자 등 모든 직접

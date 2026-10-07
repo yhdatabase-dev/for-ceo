@@ -14,7 +14,7 @@
  *     - 아직 미적재면 4순위 fallback 메시지로 잠시 표시 → 적재 후 재렌더.
  */
 
-import { getCorpusSync } from '@/lib/api/topics';
+import { getCorpusSync } from '@/features/topics/api';
 
 export interface LawExcerpt {
   /** 화면 상단의 짧은 제목. */

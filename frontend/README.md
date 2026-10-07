@@ -8,7 +8,7 @@ Next.js 14 App Router · TypeScript · CSS Modules · Pretendard.
 
 ```bash
 npm install
-npm run dev    # http://localhost:18091 (CGR_FRONTEND_PORT)
+npm run dev    # http://localhost:18091/cgr (포트 CGR_FRONTEND_PORT)
 ```
 
 ## 환경 변수 (저장소 루트 `.env` — 백엔드와 같은 파일, 설명은 `.env.example`)
@@ -24,48 +24,45 @@ npm run dev    # http://localhost:18091 (CGR_FRONTEND_PORT)
 
 ## 디렉토리 구조
 
+화면 주소는 모두 `/cgr` 아래(basePath, `next.config.mjs`). 화면 경로는 `src/lib/routes.ts` 한 곳에서 정의.
+
 ```
 src/
-├── app/                            # Next.js App Router
-│   ├── layout.tsx                  # 루트 — Pretendard preload
-│   ├── page.tsx                    # 홈 — 문서 선택·업로드·사업장 정보
-│   ├── review/[id]/
-│   │   ├── loading/                # 진행률 화면 (단계 카드)
-│   │   ├── ec/                     # 근로계약서
-│   │   │   ├── page.tsx            #   Step3 결과 (게이지·캐러셀·SuggestBlock·챗봇)
-│   │   │   ├── review/page.tsx     #   Step2 구조화 표 편집
-│   │   │   └── contract/page.tsx   #   Step4 표준 계약서
-│   │   ├── ws/                     # 임금명세서 (베타)
-│   │   │   ├── page.tsx            #   결과 (EC 동일 디자인)
-│   │   │   └── contract/page.tsx   #   표준 임금명세서
-│   │   └── findings/[findingId]/   # 취업규칙 상세
-│   └── api/cgr/[...path]/route.ts  # BFF — X-API-Key 주입
+├── app/                                 # 화면·라우팅 (App Router)
+│   ├── layout.tsx
+│   ├── page.tsx                         # /cgr — 문서 선택 + 업로드
+│   ├── ec/                              # 근로계약서
+│   │   ├── page.tsx                     #   /cgr/ec — 업로드
+│   │   └── [caseUid]/
+│   │       ├── loading/                 #   진행률 화면
+│   │       ├── contract/                #   2. 계약서 내용 확인 (구조화 표 편집)
+│   │       ├── review/                  #   3. 검토결과
+│   │       └── preview/                 #   4. 개선안 미리보기 (표준 계약서)
+│   ├── wr/                              # 취업규칙
+│   │   ├── page.tsx                     #   /cgr/wr — 업로드
+│   │   └── [caseUid]/
+│   │       ├── loading/                 #   진행률 화면
+│   │       ├── text/                    #   추출 텍스트 확인
+│   │       ├── review/                  #   검토결과
+│   │       ├── findings/[findingId]/    #   검토결과 상세
+│   │       └── comparison/              #   신구대조표
+│   ├── history/                         # /cgr/history — 검토 이력
+│   └── api/cgr/[...path]/route.ts       # BFF — X-API-Key 주입
 │
-├── components/
-│   ├── home/                       # DocTypePicker · FileDropzone · WorkplaceForm · Hero
-│   ├── layout/                     # SiteHeader
-│   ├── review/                     # FindingCarousel · VerdictCard · LoadingScreen 등
-│   │   └── detail/                 #   상세 4탭
-│   └── ui/                         # Button · Card · Icon · RiskBadge · LawHover 등
+├── features/                            # 업무 기능 (백엔드 도메인과 같은 이름)
+│   ├── ec/                              # api.ts · store.ts · components/ · reviewShared.ts
+│   ├── wr/                              # api.ts · store.ts · mappers.ts · components/(detail·print)
+│   ├── history/                         # store.ts — 검토 건 보관(브라우저 저장소)·이력 목록
+│   └── topics/                          # api.ts — 노무 주제 해설
 │
-├── lib/
-│   ├── api/
-│   │   ├── client.ts               # fetch wrapper
-│   │   ├── ec.ts · ws.ts · review.ts · topics.ts
-│   │   ├── mappers.ts              # 백엔드 → 프론트 타입 변환
-│   │   └── types.ts
-│   ├── reviewStore.ts              # 메모리 + sessionStorage (EC·WS·WR 워크플로 상태)
-│   └── markdownBold.tsx
+├── components/                          # 공통 UI
+│   ├── home/                            # HomeScreen(업로드) · DocTypePicker · FileDropzone · WorkplaceForm 등
+│   ├── layout/                          # SiteHeader
+│   ├── review/                          # LoadingScreen · ChatPanel · mobile/ (근로계약서·취업규칙 공용)
+│   └── ui/                              # Button · Card · Icon · RiskBadge 등
 │
-├── data/
-│   └── lawExcerpts.ts              # 법령·주제 발췌 (코퍼스는 백엔드 lazy fetch)
-│
-├── styles/
-│   ├── globals.css                 # civic 디자인 토큰
-│   └── tokens.ts                   # TypeScript 토큰
-│
-└── types/
-    └── review.ts                   # WorkplaceContext · Finding · DocumentType
+├── lib/                                 # 기술 유틸 — api/client.ts · api/types.ts · routes.ts · basePath.ts
+├── data/ · hooks/ · styles/ · types/
 ```
 
 ## 디자인 시스템
@@ -108,17 +105,16 @@ src/
 
 | 클라이언트 | 백엔드 |
 |---|---|
-| `lib/api/ec.ts` | `/api/v1/ec/*` (extract·structure·analyze·chat·generate) |
-| `lib/api/ws.ts` | `/api/v1/ws/*` (extract·analyze·inspect·generate·catalog) |
-| `lib/api/review.ts` | `/api/v1/review` (취업규칙) |
-| `lib/api/topics.ts` | `/api/v1/topics/corpus` (lazy fetch + 모듈 캐시) |
+| `features/ec/api.ts` | `/api/cgr/ec/*` (extractions·structures·classifications·analyses·field-validations·drafts·documents·chat-messages) |
+| `features/wr/api.ts` | `/api/cgr/wr/*` (reviews·revisions·revision-documents·comparison-documents·review-summaries·classifications) |
+| `features/topics/api.ts` | `/api/cgr/topics/sections` (lazy fetch + 모듈 캐시) |
 
-## 새 페이지·문서 추가
+## 새 화면 추가
 
-1. `src/app/review/[id]/<doc>/page.tsx` + `page.module.css`
-2. `reviewStore` 에 워크플로 phase 타입 추가 (예: `WsWorkflow`)
-3. `components/review/LoadingScreen.tsx` 라우팅 분기 추가
-4. `lib/api/<doc>.ts` 클라이언트 함수
+1. `src/app/<도메인>/[caseUid]/<화면>/page.tsx` + `page.module.css`
+2. `src/lib/routes.ts` 에 경로 추가
+3. 단계 상태가 필요하면 `features/<도메인>/store.ts` 에 phase 추가, `components/review/LoadingScreen.tsx` 라우팅 분기 추가
+4. API 호출은 `features/<도메인>/api.ts`
 
 ## 스크립트
 

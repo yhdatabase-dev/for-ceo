@@ -1,7 +1,6 @@
 """근로계약서 8섹션 구조화."""
 from __future__ import annotations
 
-import time
 from typing import Any
 
 from fastapi import (
@@ -15,36 +14,11 @@ from app.core import jobs
 from app.core.config import get_llm_model
 from app.core.security import require_api_key
 from app.schemas.ec.request import StructureIn
-from app.schemas.ec.response import JobStartOut, StructureOut, StructureResultOut
+from app.schemas.ec.response import JobStartOut, StructureResultOut
 from app.services.ec import structure as structure_service
 
 router = APIRouter(tags=["employment_contract"])
 
-
-@router.post(
-    "/structures/sync",
-    response_model=StructureOut,
-    summary="OCR 텍스트 → 8섹션 구조화 JSON",
-    description=(
-        "Step2 검토 페이지의 입력 데이터. 사용자는 표 UI 에서 행 단위로 value/note 를 수정 후\n"
-        "`/ec/analyses` 로 보낸다."
-    ),
-    dependencies=[Depends(require_api_key)],
-)
-def post_structure(body: StructureIn):
-    t0 = time.time()
-    try:
-        data = structure_service.run(body.extracted_text)
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"구조화 실패: {type(e).__name__}: {e}",
-        )
-    return StructureOut(
-        structured_data=data,
-        elapsed_sec=round(time.time() - t0, 2),
-        model=get_llm_model(),
-    )
 
 @router.post(
     "/structures",

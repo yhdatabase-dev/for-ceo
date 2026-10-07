@@ -4,14 +4,11 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 
 import SiteHeader from '@/components/layout/SiteHeader';
-import {
-  clearAllCases,
-  clearCase,
-  listCases,
-} from '@/lib/reviewStore';
+import { clearAllCases, clearCase, listCases } from '@/features/history/store';
 import type { DocumentType } from '@/types/review';
 
 import styles from './page.module.css';
+import { routes } from '@/lib/routes';
 
 /**
  * 내 검토 이력 — 사업주가 지난 검토를 다시 보는 페이지.
@@ -31,8 +28,8 @@ function resolveResultUrl(
   caseId: string,
   doc?: DocumentType,
 ): string {
-  if (doc === 'employment-contract') return `/review/${caseId}/ec`;
-  return `/review/${caseId}`;
+  if (doc === 'employment-contract') return routes.ecReview(caseId);
+  return routes.wrReview(caseId);
 }
 
 function formatDate(ts: number): string {

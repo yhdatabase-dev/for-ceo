@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import tempfile
-import time
 from pathlib import Path
 
 from fastapi import (
@@ -22,62 +21,12 @@ from app.core.config import get_llm_model
 from app.core.logging import bind_context, get_logger
 from app.core.security import require_api_key
 from app.integrations.parsers.dispatcher import parse_to_text
-from app.schemas.ec.response import ExtractOut, ExtractResultOut, JobStartOut
+from app.schemas.ec.response import ExtractResultOut, JobStartOut
 
 log = get_logger(__name__)
 
 router = APIRouter(tags=["employment_contract"])
 
-
-@router.post(
-    "/extractions/sync",
-    response_model=ExtractOut,
-    summary="근로계약서 파일 → 텍스트 추출 (OCR 포함)",
-    description=(
-        "이미지(PNG/JPG 등)는 `cgr/parsers/image.py` Vision OCR 로,\n"
-        "DOCX·HWP·PDF·TXT 는 기존 파서로 텍스트 추출.\n"
-        "다음 단계(`/ec/structures`) 의 입력이 됩니다."
-    ),
-    dependencies=[Depends(require_api_key)],
-)
-async def post_extract(
-    request: Request,
-    file: UploadFile = File(..., description="검토 대상 근로계약서 파일"),
-):
-    t0 = time.time()
-    content = await file.read()
-    upload_tracker.validate_upload(file.filename or "", content)
-    suffix = Path(file.filename or "upload.bin").suffix or ".bin"
-    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tf:
-        tf.write(content)
-        tmp_path = Path(tf.name)
-    upload_tracker.record_upload(
-        content=content,
-        filename=file.filename or "",
-        mime=file.content_type or "",
-        service="근로계약서",
-        request=request,
-    )
-    try:
-        try:
-            text = parse_to_text(tmp_path)
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"텍스트 추출 실패: {type(e).__name__}: {e}",
-            )
-    finally:
-        try:
-            tmp_path.unlink(missing_ok=True)
-        except Exception as e:
-            log.warning("무시된 예외 — %s: %s", type(e).__name__, e)
-
-    return ExtractOut(
-        extracted_text=text,
-        filename=file.filename or "",
-        elapsed_sec=round(time.time() - t0, 2),
-        model=get_llm_model(),
-    )
 
 @router.post(
     "/extractions",
@@ -99,7 +48,7 @@ async def post_extract_start(
         tf.write(content)
         tmp_path = Path(tf.name)
     filename = file.filename or ""
-    # 원본 파일 보관 — 관리자가 검토 로그에서 직접 열람·다운로드 (case_id 로 연결)
+    # 업로드 메타 기록 (case_id 로 연결, 원본 파일은 저장하지 않음)
     if case_id:
         upload_tracker.record_upload(
             content=content,

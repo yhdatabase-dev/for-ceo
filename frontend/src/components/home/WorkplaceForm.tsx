@@ -3,7 +3,7 @@
 import Card from '@/components/ui/Card';
 import Term from '@/components/ui/Term';
 import type { DocumentType, WorkplaceContext } from '@/types/review';
-import { HELP_BUSINESS_SIZE } from './workplaceHelp';
+import { HELP_BUSINESS_SIZE } from './WorkplaceHelp';
 import styles from './WorkplaceForm.module.css';
 
 type TernaryValue = 'unknown' | 'yes' | 'no';

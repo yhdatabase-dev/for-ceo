@@ -121,10 +121,6 @@ def get_data_dir() -> str:
     return _env("CGR_DATA_DIR")
 
 
-def get_uploads_dir() -> str:
-    return _env("CGR_UPLOADS_DIR")
-
-
 def get_prompts_dir() -> str:
     return _env("CGR_PROMPTS_DIR")
 

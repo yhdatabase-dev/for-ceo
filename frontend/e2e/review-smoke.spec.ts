@@ -81,7 +81,7 @@ async function seedAndCollect(page: Page, entry: { caseId: string }) {
 
 test('EC 결과 페이지 — 마커·법령링크·메타칩 렌더 (데스크톱)', async ({ page }) => {
   const errors = await seedAndCollect(page, EC_ENTRY);
-  await page.goto('/review/e2e-ec/ec');
+  await page.goto('/cgr/ec/e2e-ec/review');
 
   // 종합 판정 카드
   await expect(page.getByText('종합 판정')).toBeVisible();
@@ -99,7 +99,7 @@ test('EC 결과 페이지 — 마커·법령링크·메타칩 렌더 (데스크�
 test('EC 결과 페이지 — 모바일(375px) 분기 렌더', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   const errors = await seedAndCollect(page, EC_ENTRY);
-  await page.goto('/review/e2e-ec/ec');
+  await page.goto('/cgr/ec/e2e-ec/review');
 
   await expect(page.getByText('종합 판정').first()).toBeVisible();
   // 모바일 전용 CTA — 수정본 만들기

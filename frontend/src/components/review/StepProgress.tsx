@@ -16,6 +16,7 @@
  */
 import Link from 'next/link';
 import styles from './StepProgress.module.css';
+import { routes } from '@/lib/routes';
 
 export type EcStep = 1 | 2 | 3 | 4;
 
@@ -38,19 +39,19 @@ const STEPS: StepDef[] = [
     n: 2,
     title: '문서 정리',
     desc: 'OCR·구조화 검토',
-    hrefFor: (id) => `/review/${id}/ec/review`,
+    hrefFor: (id) => routes.ecContract(id),
   },
   {
     n: 3,
     title: '법령 비교',
     desc: '적절·보완·부적절 분류',
-    hrefFor: (id) => `/review/${id}/ec`,
+    hrefFor: (id) => routes.ecReview(id),
   },
   {
     n: 4,
     title: '표준 계약서',
     desc: '본문 자동 작성',
-    hrefFor: (id) => `/review/${id}/ec/contract`,
+    hrefFor: (id) => routes.ecPreview(id),
   },
 ];
 

@@ -1,6 +1,6 @@
-"""업로드 추적 — 메타 기록 + 파일 저장(관리자 열람용).
+"""업로드 추적 — 메타만 기록한다. 원본 파일은 저장하지 않는다(처리용 임시 파일은 처리 후 삭제).
 
-- 메타는 events.db(analytics.upload_record), 파일 바이트는 datadir.uploads_dir() 에 저장.
+- 메타는 app.tb_file_uld_rcd (analytics.add_upload).
 - 업로더는 **익명화**: 원시 IP 를 저장하지 않고 IP+UA+날짜 단방향 해시(visitor)만 남긴다.
 - 보관기간(retention) 초과분은 analytics.cleanup_old_uploads 로 자동 삭제.
 - 실패해도 silent — 업로드/추출 본 흐름을 절대 막지 않는다.
@@ -8,12 +8,11 @@
 from __future__ import annotations
 
 import hashlib
-import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from app.core import config, datadir
+from app.core import config
 from app.core.logging import get_logger
 from app.repositories.shared import analytics
 
@@ -105,21 +104,12 @@ def record_upload(
     request: Any | None = None,
     case_id: str | None = None,
 ) -> int | None:
-    """업로드 1건 기록(메타 + 파일 저장). 절대 예외를 밖으로 던지지 않는다.
+    """업로드 1건 메타 기록. 원본 파일은 저장하지 않는다. 절대 예외를 밖으로 던지지 않는다.
 
     저장된 업로드 레코드 id 를 반환(실패 시 None) — 상호작용 로그와 연결하는 데 쓴다.
     """
     try:
         ext = (Path(filename or "").suffix.lower().lstrip(".")) or "bin"
-        uid = uuid.uuid4().hex
-        stored = ""
-        try:
-            dest = datadir.uploads_dir() / f"{uid}.{ext}"
-            dest.write_bytes(content or b"")
-            stored = str(dest)
-        except Exception as e:
-            log.warning("업로드 파일 저장 실패 (메타만 기록): %s: %s", type(e).__name__, e)
-            stored = ""
         return analytics.add_upload(
             service=service,
             filename=filename or "",
@@ -128,7 +118,7 @@ def record_upload(
             ext=ext,
             visitor=anon_visitor(request),
             case_id=case_id,
-            stored_path=stored,
+            stored_path="",
         )
     except Exception as e:
         log.warning("업로드 기록 실패 (본 흐름 계속): %s: %s", type(e).__name__, e)
