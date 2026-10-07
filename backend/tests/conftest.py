@@ -25,10 +25,13 @@ def pytest_configure(config):
     """cgr 모듈 import 전에 환경 격리 — 세션 전체 적용."""
     tmp = Path(config.cache.mkdir("cgr_data"))  # pytest 관리 임시 디렉터리
     os.environ["CGR_DATA_DIR"] = str(tmp)        # uploads·prompts → 임시
-    os.environ["PGHOST"] = "127.0.0.1"           # 개발 DB 격리 — 닿지 않는 포트
-    os.environ["PGPORT"] = "1"
+    os.environ["CGR_ENVIRONMENT"] = "local"
+    os.environ["CGR_DB_HOST"] = "127.0.0.1"      # 개발 DB 격리 — 닿지 않는 포트
+    os.environ["CGR_DB_PORT"] = "1"
+    os.environ["CGR_DB_NAME"] = "test"
+    os.environ["CGR_DB_USER"] = "test"
+    os.environ["CGR_DB_PASSWORD"] = "test"
     os.environ["CGR_DISABLE_CACHE"] = "1"        # LLM 캐시 디스크 쓰기 금지
-    os.environ.setdefault("API_KEY", "test-api-key")
-    os.environ.setdefault("ADMIN_API_KEY", "test-admin-key")
-    # OPENAI 키는 없어도 됨 — LLM 경로는 테스트하지 않음. 실수 호출 시 즉시 실패하도록 무효값.
-    os.environ.setdefault("OPENAI_API_KEY", "test-not-a-real-key")
+    os.environ["CGR_API_KEY"] = "test-api-key"
+    # LLM 실호출 금지 — 내장 가짜 LLM 으로 고정
+    os.environ["CGR_LLM_MOCK"] = "1"

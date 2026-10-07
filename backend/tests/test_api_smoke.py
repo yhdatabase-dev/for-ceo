@@ -15,15 +15,14 @@ from fastapi.testclient import TestClient
 
 @pytest.fixture(scope="module")
 def client():
-    # conftest 가 API_KEY/ADMIN_API_KEY/CGR_DATA_DIR(임시) 를 이미 설정한 상태에서 import
+    # conftest 가 CGR_API_KEY/CGR_DATA_DIR(임시)/가짜 LLM 을 이미 설정한 상태에서 import
     from app.main import app
     with TestClient(app) as c:  # with: startup 이벤트(보관기간 정리 — 임시 디렉터리) 실행
         yield c
 
 
 API = "/api/cgr"
-KEY = {"X-API-Key": os.environ.get("API_KEY", "test-api-key")}
-ADMIN = {"X-API-Key": os.environ.get("ADMIN_API_KEY", "test-admin-key")}
+KEY = {"X-API-Key": os.environ["CGR_API_KEY"]}
 
 
 def test_health_no_auth(client):
@@ -60,7 +59,7 @@ def test_protected_route_with_key(client):
 )
 def test_removed_routes_absent(client, path):
     """관리자·임금명세서(ws)·노무제공자(sc) 기능 제외 — 라우트가 등록되지 않아야 한다."""
-    r = client.get(f"{API}{path}", headers=ADMIN)
+    r = client.get(f"{API}{path}", headers=KEY)
     assert r.status_code in (404, 405)
 
 

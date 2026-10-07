@@ -1,6 +1,6 @@
 # moellab.info 자체 서버 배포 — backend(FastAPI) + frontend(Next.js) + Caddy(자동 HTTPS)
 #
-#   1) cp .env.docker.example .env   후 값 채우기 (특히 OPENAI_API_KEY, ADMIN_*, 도메인)
+#   1) cp .env.docker.example .env   후 값 채우기 (특히 OPENAI_API_KEY, CGR_API_KEY, DB, 도메인)
 #   2) docker compose up -d --build
 #   3) moellab.info DNS A레코드가 이 서버를 가리키면 Caddy 가 HTTPS 인증서를 자동 발급
 #
@@ -11,15 +11,15 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      API_KEY: ${API_KEY}
-      ADMIN_API_KEY: ${ADMIN_API_KEY}
+      CGR_ENVIRONMENT: prod
+      CGR_API_KEY: ${CGR_API_KEY}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-mini}
-      PGHOST: ${PGHOST}
-      PGPORT: ${PGPORT:-5432}
-      PGDATABASE: ${PGDATABASE}
-      PGUSER: ${PGUSER}
-      PGPASSWORD: ${PGPASSWORD}
+      CGR_LLM_MODEL: ${CGR_LLM_MODEL:-gpt-5.4-mini}
+      CGR_DB_HOST: ${CGR_DB_HOST}
+      CGR_DB_PORT: ${CGR_DB_PORT:-5432}
+      CGR_DB_NAME: ${CGR_DB_NAME}
+      CGR_DB_USER: ${CGR_DB_USER}
+      CGR_DB_PASSWORD: ${CGR_DB_PASSWORD}
       CGR_DATA_DIR: /data
       PORT: "8080"
     volumes:
@@ -32,13 +32,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_API_BASE: http://backend:8080
     environment:
+      CGR_API_BASE: http://backend:8080
       CGR_API_KEY: ${CGR_API_KEY}
-      CGR_ADMIN_API_KEY: ${CGR_ADMIN_API_KEY}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
-      ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET}
       NODE_ENV: production
     expose:
       - "3000"

@@ -6,15 +6,14 @@
 
 ## 셋업
 
-### 1) 키 설정 (최초 1회)
+### 1) 환경변수 (최초 1회)
 
 ```bash
-cd backend
-cp .streamlit/secrets.toml.example .streamlit/secrets.toml
-# .streamlit/secrets.toml 열어서 openai_api_key 를 실제 키로 교체
+cp .env.example .env
+# .env 를 열어 DB 접속 정보·CGR_API_KEY 를 채운다 (백엔드·프론트가 같은 파일을 쓴다)
 ```
 
-(또는 환경변수 `OPENAI_API_KEY` 로 설정 — secrets.toml 보다 우선)
+`OPENAI_API_KEY` 가 비어 있으면 내장 가짜 LLM 으로 동작한다(로컬·테스트는 실호출 없음).
 
 ### 2) Python 의존성
 
@@ -28,8 +27,6 @@ pip install -r requirements.txt
 ```bash
 cd frontend
 npm install
-cp .env.example .env.local
-# (.env.local 의 CGR_API_KEY 는 secrets.toml 의 api_key 와 일치시켜야 BFF 가 백엔드 호출 가능)
 ```
 
 ### 4) 마스터 DB 시드 (최초 1회 또는 데이터 변경 시)
@@ -42,12 +39,11 @@ cd backend && python scripts/seed_master_db.py --drop-first
 
 ## 실행
 
-3개 서버 — 각자 다른 터미널에서:
+2개 서버 — 각자 다른 터미널에서 (포트는 .env 의 CGR_BACKEND_PORT · CGR_FRONTEND_PORT):
 
 ```bash
-cd backend  && python launch_api.py     # FastAPI 백엔드 — http://127.0.0.1:8503
-cd backend  && python launch_admin.py   # Streamlit 관리자 — http://127.0.0.1:8502
-cd frontend && npm run dev              # Next.js 사용자 — http://127.0.0.1:3000
+cd backend  && python launch_api.py     # FastAPI 백엔드 — http://127.0.0.1:18081
+cd frontend && npm run dev              # Next.js 사용자 — http://localhost:18091
 ```
 
 상세 트러블슈팅 — [`docs/06_개발_가이드.md`](docs/06_개발_가이드.md)
@@ -63,7 +59,6 @@ backend/                  # Python (FastAPI + Streamlit 관리자)
   │   ├── prompts/        # LLM 프롬프트 JSON
   │   └── 영세사업주를 위한 꿀팁.xlsx  # 가이드 DB 시드 입력
   ├── scripts/            # 시드 스크립트 (seed_master_db.py 가 메인)
-  └── .streamlit/         # secrets.toml (Streamlit + FastAPI 키 공유)
 frontend/                 # Next.js 14 — 사용자 화면 (Pretendard · civic 디자인)
   ├── src/app/            # 페이지 (홈 · 검토 · 가이드 · 이력)
   ├── src/components/     # 공용 컴포넌트 (FindingCard · ChatPanel 등)

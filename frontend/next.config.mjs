@@ -1,6 +1,10 @@
+import { loadRootEnv } from './scripts/root-env.mjs';
+
+// 저장소 루트 .env 를 백엔드와 함께 쓴다(이미 있는 환경변수가 우선).
+loadRootEnv();
+
 /** @type {import('next').NextConfig} */
-// 하위경로 배포(예: moellab.info/for-ceo)는 빌드 시 NEXT_PUBLIC_BASE_PATH=/for-ceo.
-// 루트 배포(Vercel 등)는 미설정 → basePath 없음(기존과 동일).
+// 하위경로 배포(예: /cgr)는 빌드 시 NEXT_PUBLIC_BASE_PATH=/cgr. 미설정 → basePath 없음.
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
 const nextConfig = {
@@ -8,7 +12,7 @@ const nextConfig = {
   // 정보노출 방지(국정원 점검) — 'X-Powered-By: Next.js' 응답 헤더 제거
   poweredByHeader: false,
   // BFF (`app/api/cgr/[...path]/route.ts`) 가 백엔드로 직접 fetch 하므로 rewrites 불필요.
-  // 환경 변수: NEXT_PUBLIC_API_BASE, CGR_API_KEY 는 BFF 안에서 사용.
+  // 환경 변수: CGR_API_BASE, CGR_API_KEY 는 BFF 안에서만(서버 측) 사용.
   ...(basePath ? { basePath } : {}),
   // ─── 보안 응답 헤더 (OWASP A05 / 국정원 점검: 클릭재킹·MIME 스니핑 등) ───
   async headers() {

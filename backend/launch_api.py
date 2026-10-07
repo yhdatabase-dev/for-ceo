@@ -1,13 +1,9 @@
-"""FastAPI 백엔드 launcher — 포트 8503.
+"""FastAPI 백엔드 launcher — 포트는 CGR_BACKEND_PORT (루트 .env, 기본 18081).
 
 사용:
     python launch_api.py
     # 또는 reload 모드:
     python launch_api.py --reload
-
-OpenAPI 문서: http://127.0.0.1:8503/docs
-
-검토 앱(8501)·관리자 앱(8502)과 분리 운영. 같은 데이터(슬롯·마스터 DB·이력) 공유.
 """
 import io
 import os
@@ -21,29 +17,28 @@ except Exception:
     pass
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-
 os.chdir(ROOT)
+sys.path.insert(0, ROOT)
+
+from app.core.config import get_backend_port  # noqa: E402  (루트 .env 로드 포함)
+
+port = str(get_backend_port())
 env = os.environ.copy()
 env["PYTHONIOENCODING"] = "utf-8"
-env["PYTHONPATH"] = ROOT
-
-reload_flag = "--reload" if "--reload" in sys.argv else None
+env["PYTHONPATH"] = os.pathsep.join(p for p in (ROOT, env.get("PYTHONPATH")) if p)
 
 cmd = [
     sys.executable, "-m", "uvicorn",
     "app.main:app",
     "--host", "127.0.0.1",
-    "--port", "8503",
+    "--port", port,
     "--log-level", "info",
 ]
-if reload_flag:
+if "--reload" in sys.argv:
     cmd.append("--reload")
 
 print("[launch_api]", " ".join(cmd), flush=True)
-print("  - Swagger UI : http://127.0.0.1:8503/docs", flush=True)
-print("  - ReDoc      : http://127.0.0.1:8503/redoc", flush=True)
-print("  - Health     : http://127.0.0.1:8503/health", flush=True)
-print("", flush=True)
-print("  Auth: X-API-Key header required for protected endpoints", flush=True)
-print("  Set api_key in .streamlit/secrets.toml or env API_KEY", flush=True)
+print(f"  - Swagger UI : http://127.0.0.1:{port}/docs", flush=True)
+print(f"  - Health     : http://127.0.0.1:{port}/health", flush=True)
+print("  Auth: X-API-Key header (CGR_API_KEY)", flush=True)
 sys.exit(subprocess.call(cmd, env=env))

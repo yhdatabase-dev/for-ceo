@@ -13,7 +13,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from app.core import datadir
+from app.core import config, datadir
 from app.core.logging import get_logger
 from app.repositories.shared import analytics
 
@@ -25,7 +25,7 @@ ALLOWED_UPLOAD_EXTS = {
     "png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "webp", "heic", "heif",
     "pdf", "docx", "doc", "hwp", "hwpx", "txt",
 }
-MAX_UPLOAD_BYTES = 20 * 1024 * 1024  # 20MB (운영 리버스프록시의 client_max_body_size 와 함께)
+MAX_UPLOAD_BYTES = config.get_max_upload_mb() * 1024 * 1024  # CGR_MAX_UPLOAD_MB (운영 리버스프록시의 client_max_body_size 와 함께)
 
 # 확장자별 매직바이트 서명 — 확장자만 바꿔치기한 위장 파일 차단 (내용 기반 2차 검증).
 # 서명이 하나라도 일치하면 통과. txt/heic 계열은 별도 처리(아래).

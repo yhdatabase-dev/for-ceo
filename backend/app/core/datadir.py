@@ -9,8 +9,9 @@ env `CGR_DATA_DIR` 로 override. 업로드 파일·편집형 프롬프트가
 """
 from __future__ import annotations
 
-import os
 from pathlib import Path
+
+from app.core import config
 
 # backend/cgr/datadir.py → parents[1] = backend
 _BACKEND_ROOT = Path(__file__).resolve().parents[2]
@@ -18,21 +19,21 @@ _DEFAULT_DATA = _BACKEND_ROOT / "data"
 
 
 def data_dir() -> Path:
-    env = os.environ.get("CGR_DATA_DIR")
+    env = config.get_data_dir()
     p = Path(env) if env else _DEFAULT_DATA
     p.mkdir(parents=True, exist_ok=True)
     return p
 
 
 def prompts_dir() -> Path:
-    env = os.environ.get("CGR_PROMPTS_DIR")
+    env = config.get_prompts_dir()
     p = Path(env) if env else (data_dir() / "prompts")
     p.mkdir(parents=True, exist_ok=True)
     return p
 
 
 def uploads_dir() -> Path:
-    env = os.environ.get("CGR_UPLOADS_DIR")
+    env = config.get_uploads_dir()
     p = Path(env) if env else (data_dir() / "uploads")
     p.mkdir(parents=True, exist_ok=True)
     return p

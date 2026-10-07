@@ -21,13 +21,13 @@ with db.connect() as conn:
 
 ## 접속 정보
 
-`app.core.config.get_db_conninfo()` — 환경변수 우선, 없으면 `backend/.env` (git 제외).
+`app.core.config.get_db_conninfo()` — 환경변수 우선, 없으면 루트 `.env` (git 제외).
 
 | 변수 | 내용 |
 |---|---|
-| `PGHOST` · `PGPORT` | 서버 |
-| `PGDATABASE` | DB 이름 |
-| `PGUSER` · `PGPASSWORD` | 계정 |
+| `CGR_DB_HOST` · `CGR_DB_PORT` | 서버 |
+| `CGR_DB_NAME` | DB 이름 |
+| `CGR_DB_USER` · `CGR_DB_PASSWORD` | 계정 |
 
 ## 서비스가 쓰는 테이블
 

@@ -5,7 +5,7 @@
 #
 # 최초 배포:
 #   fly launch --no-deploy      # 앱 생성 (이 toml 사용)
-#   fly secrets set OPENAI_API_KEY=sk-... API_KEY=... ADMIN_API_KEY=...
+#   fly secrets set OPENAI_API_KEY=sk-... CGR_API_KEY=... CGR_DB_HOST=... (CGR_DB_* 5개)
 #   fly deploy
 #
 # 이후 배포: fly deploy
@@ -18,9 +18,10 @@ primary_region = "nrt"
 
 [env]
   PORT = "8080"
+  CGR_ENVIRONMENT = "prod"
   # 로컬 기본값(config.DEFAULT_LLM_MODEL)과 반드시 일치 — 모델이 다르면 답변·거부
   # 동작이 달라진다. gpt-4o-mini 는 정당한 질문도 과하게 거부함.
-  OPENAI_MODEL = "gpt-5.4-mini"
+  CGR_LLM_MODEL = "gpt-5.4-mini"
   # 가변 데이터(통계 events.db·업로드 파일·편집형 프롬프트)는 영구 볼륨(/data)에 둠
   # → 배포 시 초기화 방지. master.db(참조)는 이미지 번들 유지.
   CGR_DATA_DIR = "/data"

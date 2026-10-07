@@ -1,16 +1,13 @@
 """취업규칙 검토 AI — FastAPI 백엔드 진입점.
 
 실행:
-    python launch_api.py
-    # 또는
-    uvicorn app.main:app --port 8503 --host 127.0.0.1
+    python launch_api.py   (포트 CGR_BACKEND_PORT, 기본 18081)
 
-OpenAPI 문서: http://127.0.0.1:8503/docs (Swagger UI)
-              http://127.0.0.1:8503/redoc (ReDoc)
+OpenAPI 문서: http://127.0.0.1:18081/docs (Swagger UI)
+              http://127.0.0.1:18081/redoc (ReDoc)
 """
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 
@@ -24,11 +21,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
 from app.api.routers.router import api_router
+from app.core import config
 from app.schemas.common import HealthResponse
 from app.core.logging import get_logger, setup as setup_logging
 
 setup_logging()  # 'cgr' 네임스페이스 로거 stderr 구성 (CGR_LOG_LEVEL, 기본 INFO)
 log = get_logger(__name__)
+config.init_llm()  # 키가 없으면 가짜 LLM 으로 연결
 
 
 app = FastAPI(
@@ -49,12 +48,8 @@ app = FastAPI(
 
 # ─── CORS — 허용 출처 화이트리스트 (OWASP A05: 와일드카드+credentials 금지) ───
 # 실제 호출은 프론트 BFF(서버사이드)라 CORS 가 필수는 아니지만, 보안 점검 기준상
-# 출처를 env(CGR_ALLOWED_ORIGINS, 콤마구분)로 제한한다. 미설정 시 로컬·운영 도메인 기본.
-_origins_env = os.environ.get("CGR_ALLOWED_ORIGINS", "").strip()
-_allowed_origins = [o.strip() for o in _origins_env.split(",") if o.strip()] or [
-    "http://localhost:3000",
-    "https://moellab.info",
-]
+# 출처를 env(CGR_ALLOWED_ORIGINS, 콤마구분)로 제한한다. 미설정 시 로컬 프론트 주소.
+_allowed_origins = config.get_allowed_origins()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins,

@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import contextvars
 import logging
-import os
 import sys
 import uuid
 
@@ -72,7 +71,9 @@ def setup(level: str | None = None) -> None:
     global _CONFIGURED
     if _CONFIGURED:
         return
-    lvl_name = (level or os.environ.get("CGR_LOG_LEVEL", "INFO")).upper()
+    from app.core.config import get_log_level
+
+    lvl_name = (level or get_log_level()).upper()
     lvl = getattr(logging, lvl_name, logging.INFO)
     handler = logging.StreamHandler(sys.stderr)
     handler.addFilter(_ContextFilter())

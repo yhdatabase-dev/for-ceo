@@ -13,13 +13,9 @@
 - `cgr.ec.services.structure.run()` — 8섹션 구조화
 - `cgr.ec.services.chat.run()` — 후속 챗봇
 - `cgr.ec.services.generate.run()` — 표준 계약서 생성
-
-**환경변수**
-- `CGR_PII_MASK=0` 으로 비활성화 (테스트·디버그 용).
 """
 from __future__ import annotations
 
-import os
 import re
 from typing import NamedTuple
 
@@ -97,18 +93,12 @@ class MaskResult(NamedTuple):
 # ─────────────────────────────────────────────────────
 # 메인 진입
 # ─────────────────────────────────────────────────────
-def is_enabled() -> bool:
-    """환경변수로 비활성 가능 — 기본 ON."""
-    return os.environ.get("CGR_PII_MASK", "1").lower() not in ("0", "false", "off")
-
-
 def mask_pii(text: str) -> MaskResult:
     """본문 텍스트에서 PII 패턴 검출·마스킹.
 
     반환: (마스킹된 텍스트, {종류: 횟수} 카운트)
-    환경변수 `CGR_PII_MASK=0` 이면 원본 그대로.
     """
-    if not text or not is_enabled():
+    if not text:
         return MaskResult(text or "", {})
 
     counts: dict[str, int] = {}
@@ -196,9 +186,6 @@ def mask_pii_in_payload(payload: dict) -> dict:
     LLM 에 전달되는 복잡한 JSON (예: structured_data) 한 번에 처리할 때.
     list / nested dict 도 재귀.
     """
-    if not is_enabled():
-        return payload
-
     def _walk(v):
         if isinstance(v, str):
             return mask_pii_text(v)

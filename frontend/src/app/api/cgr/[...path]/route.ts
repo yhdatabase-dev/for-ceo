@@ -6,7 +6,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8503';
+const API_BASE = process.env.CGR_API_BASE ?? 'http://localhost:18081';
 const API_PREFIX = '/api/cgr';
 const API_KEY = process.env.CGR_API_KEY ?? '';
 

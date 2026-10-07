@@ -65,14 +65,6 @@ def test_payload_recursive_masking():
     assert out["금액"] == 1000  # 비문자열은 그대로
 
 
-def test_disable_env(monkeypatch):
-    monkeypatch.setenv("CGR_PII_MASK", "0")
-    text = "성명: 홍길동 010-1234-5678"
-    assert pii_mask.mask_pii_text(text) == text
-    monkeypatch.setenv("CGR_PII_MASK", "1")
-    assert pii_mask.mask_pii_text(text) != text
-
-
 def test_deterministic():
     text = "성명: 홍길동 / 주민 901231-1234567 / 010-1234-5678"
     assert pii_mask.mask_pii_text(text) == pii_mask.mask_pii_text(text)

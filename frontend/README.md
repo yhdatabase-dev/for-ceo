@@ -8,16 +8,17 @@ Next.js 14 App Router · TypeScript · CSS Modules · Pretendard.
 
 ```bash
 npm install
-npm run dev    # http://127.0.0.1:3000
+npm run dev    # http://localhost:18091 (CGR_FRONTEND_PORT)
 ```
 
-## 환경 변수 (`.env.local`)
+## 환경 변수 (저장소 루트 `.env` — 백엔드와 같은 파일, 설명은 `.env.example`)
 
 | 변수 | 기본 | 설명 |
 |---|---|---|
-| `NEXT_PUBLIC_API_BASE` | `http://127.0.0.1:8503` | 백엔드 FastAPI 주소 (서버측 fetch) |
+| `CGR_API_BASE` | `http://localhost:18081` | 백엔드 FastAPI 주소 (서버측 fetch, 브라우저 비노출) |
 | `CGR_API_KEY` | — | server-only. BFF 가 X-API-Key 헤더에 주입. 클라이언트 노출 X |
-| `CGR_ADMIN_API_KEY` | — | 관리자 엔드포인트용 |
+| `CGR_FRONTEND_PORT` | `18091` | 로컬 dev 서버 포트 |
+| `NEXT_PUBLIC_BASE_PATH` | — | 하위 경로 배포 접두어 (예: `/cgr`) |
 
 > 클라이언트에 API 키 노출 없도록 — BFF (`src/app/api/cgr/[...path]/route.ts`) 가 서버측 주입.
 
@@ -98,7 +99,7 @@ src/
 
 브라우저는 `/api/cgr/*` 만 호출. `src/app/api/cgr/[...path]/route.ts`:
 1. 서버측에서 `X-API-Key` 헤더 주입 (`CGR_API_KEY` env)
-2. `NEXT_PUBLIC_API_BASE` 로 forward
+2. `CGR_API_BASE` 로 forward
 3. 응답·헤더 그대로 반환
 
 → 브라우저 코드에 API 키 노출 X.
