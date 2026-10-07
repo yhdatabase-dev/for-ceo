@@ -2,35 +2,15 @@
 
 **우선순위**
   1. PostgreSQL — tb_chck_item_ref_tpc(점검항목_참조주제) 조인.
-  2. (fallback) ANALYSIS_PROMPT 의 매핑 테이블 파싱 + topic_corpus.json
+  2. (fallback) ANALYSIS_PROMPT 의 매핑 테이블 파싱
      — DB 가 없거나 비어있는 환경에서도 동작 보장.
 """
 from __future__ import annotations
 
-import json
 import re
 from functools import lru_cache
-from pathlib import Path
-from typing import Any
 
 from app.services.ec import prompts
-
-_CORPUS_PATH = Path(__file__).resolve().parents[3] / "data" / "topic_corpus.json"
-
-# 한 항목당 LLM 에 보낼 주제 섹션 최대 수 (token 폭주 방지)
-MAX_SECTIONS_PER_ITEM = 4
-# 한 섹션 본문 글자수 상한
-MAX_BODY_CHARS = 600
-
-
-@lru_cache(maxsize=1)
-def _load_corpus() -> dict[str, dict[str, dict[str, str]]]:
-    if not _CORPUS_PATH.exists():
-        return {}
-    try:
-        return json.loads(_CORPUS_PATH.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
 
 
 # ─── 항목 → (주제명, 섹션번호) 리스트 매핑 빌더 ────────────────────────
@@ -106,135 +86,3 @@ def topics_for_item(item_name: str) -> list[tuple[str, str]]:
     if not have:
         return refs  # DB 접근 불가 시 거르지 않음
     return [(t, s) for (t, s) in refs if f"{t}|{s}" in have]
-
-
-# ─── 코퍼스 lookup ────────────────────────────────────────────────
-
-
-def _topic_name_to_db_key(topic_name: str) -> str:
-    """주제명 → 코퍼스 DB 키 (예: '근로시간' → 'DB_근로시간')."""
-    return f"DB_{topic_name.strip()}"
-
-
-def fetch_sections(
-    refs: list[tuple[str, str]],
-    *,
-    max_sections: int = MAX_SECTIONS_PER_ITEM,
-    max_chars: int = MAX_BODY_CHARS,
-) -> list[dict[str, str]]:
-    """주제·섹션 ref 리스트 → 코퍼스에서 본문 추출.
-
-    body_friendly (paraphrased) 우선, 없으면 body (원문). 너무 길면 잘림.
-    """
-    corpus = _load_corpus()
-    if not corpus:
-        return []
-    picked: list[dict[str, str]] = []
-    seen: set[str] = set()
-    for topic, section in refs[: max_sections * 2]:
-        key = f"{topic}|{section}"
-        if key in seen:
-            continue
-        seen.add(key)
-        db_key = _topic_name_to_db_key(topic)
-        sections = corpus.get(db_key)
-        if not sections:
-            # 코퍼스 키 변형 시도 — "휴일-휴일대체" 같은 하이픈 케이스
-            for k in corpus.keys():
-                if k.replace("DB_", "") == topic:
-                    sections = corpus[k]
-                    break
-        if not sections:
-            continue
-        entry = sections.get(section)
-        if not entry:
-            continue
-        body = entry.get("body_friendly") or entry.get("body") or ""
-        if not body:
-            continue
-        picked.append(
-            {
-                "topic": topic,
-                "section": section,
-                "title": entry.get("title", ""),
-                "body": body[:max_chars],
-            }
-        )
-        if len(picked) >= max_sections:
-            break
-    return picked
-
-
-def build_related_topics_block(item_name: str | None) -> str:
-    """챗봇 user prompt 에 첨부할 관련 주제 블록.
-
-    SQL DB 우선. 없거나 매핑 없으면 JSON fallback. 둘 다 비면 빈 문자열.
-    """
-    if not item_name:
-        return ""
-    sections = _fetch_via_sql(item_name)
-    if not sections:
-        # JSON fallback
-        refs = topics_for_item(item_name)
-        if refs:
-            sections = fetch_sections(refs)
-    if not sections:
-        return ""
-    lines: list[str] = [
-        f"[「{item_name}」 관련 노무사회 자료 — 답변 시 적극 활용]",
-    ]
-    for s in sections:
-        lines.append(
-            f"\n• {s['topic']} §{s['section']}\n  {s['body']}".strip()
-        )
-    return "\n".join(lines)
-
-
-def _fetch_via_sql(item_name: str) -> list[dict[str, str]]:
-    """DB 의 점검항목_참조주제(tb_chck_item_ref_tpc) 조인 — 한 항목의 관련 주제 섹션 본문.
-
-    EC 문서 한정. body_friendly 우선, 없으면 body_original.
-    """
-    try:
-        from app.repositories import base as _db
-    except Exception:
-        return []
-    try:
-        with _db.connect() as conn:
-            cur = conn.execute(
-                """
-                SELECT t.tpc_nm AS topic, ts.sctn_no AS section,
-                       ts.sctn_nm AS title,
-                       COALESCE(NULLIF(ts.frd_mtxt_cn, ''), ts.mtxt_cn) AS body
-                FROM ai.tb_chck_item_slot ci
-                JOIN ai.tb_doc_knd dt            ON dt.doc_sn = ci.doc_sn
-                JOIN ai.tb_chck_item_ref_tpc cit ON cit.mng_sn = ci.mng_sn
-                JOIN ai.tb_tpc_sctn ts           ON ts.sctn_sn = cit.sctn_sn
-                JOIN ai.tb_tpc_mstr t            ON t.tpc_sn = ts.tpc_sn
-                WHERE dt.doc_eng_nm = 'employment_contract'
-                  AND ci.trgt_artcl_nm = %s
-                  AND COALESCE(NULLIF(ts.frd_mtxt_cn, ''),
-                              NULLIF(ts.mtxt_cn, '')) IS NOT NULL
-                ORDER BY cit.wgvl_rt DESC, ts.sctn_no
-                LIMIT %s
-                """,
-                (item_name, MAX_SECTIONS_PER_ITEM),
-            )
-            rows = cur.fetchall()
-        out: list[dict[str, str]] = []
-        for r in rows:
-            body = (r["body"] or "")[:MAX_BODY_CHARS]
-            if not body:
-                continue
-            out.append(
-                {
-                    "topic": r["topic"],
-                    "section": r["section"],
-                    "title": r["title"] or "",
-                    "body": body,
-                }
-            )
-        return out
-    except Exception:
-        # DB 없거나 쿼리 실패 — JSON fallback 으로 진행
-        return []

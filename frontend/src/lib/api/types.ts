@@ -180,15 +180,3 @@ export interface EcGenerateOut {
   model: string;
 }
 
-/** 챗봇 한 턴 (사용자 또는 assistant). */
-export interface EcChatTurn {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-/** `/api/cgr/ec/chat-messages` 응답. */
-export interface EcChatOut {
-  answer: string;
-  elapsed_sec: number;
-  model: string;
-}

@@ -21,8 +21,6 @@ import {
 import type {
   EcAnalyzeOut,
   EcAnalysisResult,
-  EcChatOut,
-  EcChatTurn,
   EcExtractOut,
   EcGenerateOut,
   EcStructureOut,
@@ -295,29 +293,6 @@ export async function postEcGenerate(
     }
   }
 }
-
-/** 5단계(부가): 결과 페이지에서 사용자가 던지는 후속 질문에 LLM 이 답변. */
-export async function postEcChat(
-  message: string,
-  opts: {
-    analysisResult?: EcAnalysisResult;
-    focusedItem?: string;
-    history?: EcChatTurn[];
-    signal?: AbortSignal;
-  } = {},
-): Promise<EcChatOut> {
-  return apiPostJson<EcChatOut>(
-    '/ec/chat-messages',
-    {
-      message,
-      analysis_result: opts.analysisResult ?? null,
-      focused_item: opts.focusedItem ?? null,
-      history: opts.history ?? [],
-    },
-    { signal: opts.signal },
-  );
-}
-
 
 /** 표준 근로계약서 본문 → .docx 다운로드. */
 export async function downloadEcDocx(

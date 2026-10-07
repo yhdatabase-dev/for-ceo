@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Any
 
 from app.core import datadir
-from app.repositories.shared import prompt as prompt_store
 
 
 # baked(이미지 번들) 기본본 — 최초 1회 볼륨으로 시드되는 원본
@@ -79,7 +78,6 @@ def save_prompt(key: str, content: str) -> None:
     tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     os.replace(tmp, path)
     _load.cache_clear()
-    get_chat_system_prompt.cache_clear()
 
 
 def get_structure_prompt() -> str:
@@ -97,145 +95,6 @@ def get_generation_prompt() -> str:
 def get_ocr_prompt() -> str:
     """OCR 시스템 프롬프트 — 참고용. `cgr/parsers/image.py` 는 자체 한국어 프롬프트 사용."""
     return _load().get("OCR_PROMPT", "")
-
-
-# ────────────────────────────────────────────────────────────────
-# 대화형 챗봇 — SFR-001
-# ────────────────────────────────────────────────────────────────
-
-_CHAT_SYSTEM_BASE = """\
-당신은 한국 노동법(특히 근로계약서) 전문 상담 도우미입니다.
-사용자(영세 사업장의 사장님·근로자)가 자신의 근로계약서 검토 결과를 보다가 추가
-질문을 하면 친근하고 정확하게 답합니다.
-
-[톤]
-- "~해요" / "~합니다" 의 친근한 한국어
-- 법률 용어는 풀어쓰되 정확한 법령명·조문 번호 유지
-- 2~5문장 정도로 압축. 길게 늘어놓지 않음
-- 핵심 결론 먼저, 부연·예외는 뒤로
-
-[강조 규칙 — 반드시 모든 답변에 일관 적용]
-- 사용자가 한눈에 알아볼 수 있도록 **핵심 어구·금액·기간·법령명**은 반드시 마크다운
-  `**굵게**` 로 감싸 출력합니다.
-- 강조 대상: 항목명("주휴수당", "임금총액"), 핵심 결론("줘야 합니다", "위반 가능성이 있어요"),
-  구체 수치("9,860원", "15일", "1주 40시간"), 조건("5인 이상", "1주 15시간 이상").
-- 한 답변에 최소 2~3곳은 굵게. 한 줄 짧은 답이라도 핵심 1곳은 굵게.
-
-[금지 규칙 — 절대 위반 금지]
-- **답변 마지막의 "관련 법령:" 줄 안의 법령명·조문은 절대 `**굵게**` 로 감싸지 마세요.**
-  그 줄 안에서는 마크다운 부호(`**`, `*`, `_`) 사용 금지. plain text 로만 출력.
-  예: "관련 법령: 근로기준법 제55조, 제17조 제1항 제5호" (O)
-       "관련 법령: **근로기준법 제55조**" (X — 절대 금지)
-
-[규칙]
-1. 사용자가 제공한 "분석 결과 컨텍스트" 의 항목·발견내용·법적근거를 적극 활용
-2. 추측이나 사견 금지. 법령·노동위원회 해석 범위 안에서만 답
-3. 사용자가 본 항목명을 짚어주며 답하면 더 좋음 ("「임금」 항목 말씀이시군요…")
-4. 단정 표현보다 "가능성이 있어요", "검토가 필요해요" 같은 신중한 표현
-5. 광고·인사말·자기소개 금지. 본론만
-6. 답변 끝에 관련 법령·조문이 있으면 한 줄로 "관련 법령: 근로기준법 제N조" 형식
-
-[근로계약서 매핑 — 답변 시 반드시 이 기준을 정확히 인용하세요]
-아래는 근로계약서 필수 기재사항·서면명시의무 기준입니다. 사용자 질문이 어느 항목에
-해당하는지 식별하고, 해당 행의 "서면명시의무·연관주제·관련법령" 을 그대로 활용해
-답하세요. 매핑되지 않은 일반 질문도 본 기준의 톤·범위 안에서 답합니다.
-
-"""
-
-
-def _extract_mapping_section(analysis_prompt: str) -> str:
-    """ANALYSIS_PROMPT 에서 STEP 2 (서면명시의무 기준) ~ STEP 4 직전까지 추출.
-    매핑 테이블 33행이 STEP 3 안에 들어있다.
-    """
-    import re
-
-    m = re.search(
-        r"## STEP 2:.*?(?=## STEP 4:)",
-        analysis_prompt,
-        flags=re.DOTALL,
-    )
-    if m:
-        return m.group(0).strip()
-    return ""
-
-
-@lru_cache(maxsize=1)
-def get_chat_system_prompt() -> str:
-    """챗봇 system prompt — base 톤(관리자 override 가능) + ANALYSIS_PROMPT 매핑 테이블."""
-    mapping = _extract_mapping_section(get_analysis_prompt())
-    base = prompt_store.get_or_default("ec_chat_base", _CHAT_SYSTEM_BASE)
-    return base + (mapping or "(매핑 테이블 로드 실패)")
-
-
-# 하위 호환 — 기존 코드가 import 하던 상수도 동적 빌더 결과로.
-def __getattr__(name: str) -> str:
-    if name == "CHAT_SYSTEM_PROMPT":
-        return get_chat_system_prompt()
-    raise AttributeError(name)
-
-
-def build_chat_user_prompt(
-    user_message: str,
-    *,
-    analysis_result: dict[str, Any] | None = None,
-    focused_item: str | None = None,
-    history: list[dict[str, str]] | None = None,
-) -> str:
-    """채팅 user 메시지 — 컨텍스트(분석 결과·현재 보는 항목·이전 대화)를 묶어서.
-
-    분석 결과는 너무 길면 LLM 의 핵심 인식을 흐리므로, 항목별 요약(`results` 의
-    적절성·항목·발견내용 정도) 만 추출해서 전달.
-    """
-    blocks: list[str] = []
-
-    if analysis_result and isinstance(analysis_result, dict):
-        overall_status = analysis_result.get("overallStatus", "")
-        risk_level = analysis_result.get("riskLevel", "")
-        results = analysis_result.get("results") or []
-        # 핵심만 추출
-        compact: list[dict[str, str]] = []
-        for r in results:
-            if not isinstance(r, dict):
-                continue
-            compact.append(
-                {
-                    "항목": r.get("항목", ""),
-                    "적절성": r.get("적절성", ""),
-                    "발견내용": (r.get("발견내용") or "")[:120],
-                    "법적근거": r.get("법적근거", ""),
-                }
-            )
-        blocks.append(
-            "[분석 결과 컨텍스트]\n"
-            f"- 종합 판정: {overall_status} (위험도 {risk_level})\n"
-            f"- 항목별 요약: {json.dumps(compact, ensure_ascii=False)}"
-        )
-
-    if focused_item:
-        blocks.append(f"[사용자가 지금 보고 있는 항목] {focused_item}")
-        # 매핑 테이블의 "연관주제" 칼럼을 따라 노무사회 코퍼스 섹션 본문 자동 첨부
-        try:
-            from app.services.ec import topic_lookup
-
-            related = topic_lookup.build_related_topics_block(focused_item)
-            if related:
-                blocks.append(related)
-        except Exception:
-            # lookup 실패해도 챗봇 자체는 동작
-            pass
-
-    if history:
-        # 최근 6턴만 포함 (사용자·assistant 쌍 ≈ 3쌍)
-        recent = history[-6:]
-        hist_lines = []
-        for h in recent:
-            role = h.get("role", "user")
-            content = (h.get("content") or "")[:600]
-            hist_lines.append(f"- {role}: {content}")
-        blocks.append("[이전 대화]\n" + "\n".join(hist_lines))
-
-    blocks.append(f"[사용자 질문] {user_message}")
-    return "\n\n".join(blocks)
 
 
 # ────────────────────────────────────────────────────────────────

@@ -151,7 +151,7 @@ body {
 
 /* ── 데스크톱(>720)은 글자·UI 를 더 크게(1.4배) ──
    PC 발표 가독성. 일반 레이아웃은 width:100%+max-width 라 가로 스크롤 없음.
-   fixed 오버레이(ChatPanel 등)는 calc(.../var(--app-zoom)) 로 자동 보정됨. */
+   fixed 오버레이는 calc(.../var(--app-zoom)) 로 자동 보정됨. */
 @media (min-width: 721px) {
   :root {
     --app-zoom: 1.4;
@@ -247,7 +247,7 @@ textarea {
     print-color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
   }
-  /* 헤더·푸터·CTA·챗봇 등 인쇄 안 할 요소들 일괄 숨김 */
+  /* 헤더·푸터·CTA 등 인쇄 안 할 요소들 일괄 숨김 */
   .noPrint { display: none !important; }
   .printOnly { display: block !important; }
   /* 페이지 잘림 방지 — 카드 단위로 page-break-inside avoid */

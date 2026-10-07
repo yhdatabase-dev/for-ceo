@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Button from '@/components/ui/Button';
-import ChatPanel from '@/components/review/ChatPanel';
 import DistributionCard from '@/features/wr/components/DistributionCard';
 import FilterBar, {
   type RiskFilter,
@@ -398,30 +397,6 @@ export default function ReviewResultPage(
       {/* ── 인쇄용 (화면에서는 숨김) ── */}
       <PrintLayout summary={summary} findings={findings} />
 
-      {/* 우하단 floating 챗봇 — SFR-001 (공용 컴포넌트) */}
-      <div className="noPrint">
-        <ChatPanel
-          analysis={{
-            doc: 'work_rules',
-            summary,
-            findings: findings.slice(0, 30).map((f) => ({
-              id: f.id,
-              article: f.article,
-              articleTitle: f.articleTitle,
-              risk: f.risk,
-              title: f.title,
-              reason: f.reason,
-            })),
-          }}
-          docLabel="취업규칙"
-          quickPrompts={[
-            '필수 기재사항이 뭔가요?',
-            '취업규칙 신고는 어디로 하나요?',
-            '10인 이상 사업장 의무는 뭐예요?',
-            '직장 내 괴롭힘은 어떻게 대응해요?',
-          ]}
-        />
-      </div>
     </>
   );
 }

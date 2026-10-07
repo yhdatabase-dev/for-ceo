@@ -8,7 +8,6 @@ import ContractFormView, {
   buildEcFormModel,
   type ContractFormState,
 } from '@/features/ec/components/ContractFormView';
-import ChatPanel from '@/components/review/ChatPanel';
 import { getCase } from '@/features/history/store';
 import { downloadEcDocx, postEcValidateField } from '@/features/ec/api';
 import { ApiCallError } from '@/lib/api/client';
@@ -317,21 +316,6 @@ export default function EcContractPage(
         </div>
       </div>
 
-      {/* 우하단 노무 가이드 챗봇 — 작성하며 질문 (인쇄 제외) */}
-      <div className="noPrint">
-        <ChatPanel
-          analysis={
-            (entry?.ec?.analysisResult as unknown as Record<string, unknown>) ?? null
-          }
-          docLabel="근로계약서"
-          quickPrompts={[
-            '이 칸은 어떻게 써야 하나요?',
-            '소정근로시간·휴게시간 기준이 뭔가요?',
-            '수습기간·기간제 계약 주의점은?',
-            '4대보험 가입은 어떻게 표기하나요?',
-          ]}
-        />
-      </div>
     </main>
   );
 }

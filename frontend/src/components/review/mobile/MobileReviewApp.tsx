@@ -23,7 +23,6 @@ import {
   type ReactNode,
 } from 'react';
 
-import ChatPanel from '@/components/review/ChatPanel';
 
 import { matchMarkers } from './markers';
 import styles from './MobileReviewApp.module.css';
@@ -289,34 +288,6 @@ export default function MobileReviewApp({
     () => (hasDoc ? matchMarkers(extractedText as string, findings) : []),
     [hasDoc, extractedText, findings],
   );
-
-  // ─── 노무가이드 챗봇 컨텍스트 — 잡힌 항목을 그대로 물어볼 수 있게 ───
-  const chatAnalysis = useMemo(
-    () => ({
-      doc: docLabel,
-      verdict: { word: verdict.word, summary: verdict.summary },
-      okCount,
-      findings: findings.slice(0, 30).map((f) => ({
-        name: f.name,
-        status: labelOf(f),
-        reason: f.reason,
-        why: f.why,
-        law: f.law,
-      })),
-    }),
-    [docLabel, verdict, okCount, findings],
-  );
-  // 빠른 질문 — 실제 잡힌 항목명으로 시드 ("'퇴직금' 항목은 왜 잡혔나요?").
-  const chatQuickPrompts = useMemo(() => {
-    const fromFindings = findings
-      .slice(0, 3)
-      .map((f) => `‘${f.name}’ 항목은 왜 잡혔나요?`);
-    return fromFindings.length > 0
-      ? [...fromFindings, '어떻게 고치면 되나요?']
-      : undefined;
-  }, [findings]);
-  // 시트로 항목을 열어 본 상태면 그 항목을 챗봇 컨텍스트로 전달.
-  const chatFocusedItem = sheetOpen && cur ? cur.name : undefined;
 
   // ─── 상태 변이 (drafts/added) — 매 변경마다 onPersist ───
   const commit = (
@@ -975,16 +946,6 @@ export default function MobileReviewApp({
         {toastMsg}
       </div>
 
-      {/* ════════ 노무가이드 챗봇 (떠 있는 FAB) ════════ */}
-      {/* 항목 상세 시트가 열린 동안엔 FAB 숨김(글자 가림 방지) */}
-      <ChatPanel
-        embedded
-        hidden={sheetOpen}
-        analysis={chatAnalysis}
-        docLabel={docLabel}
-        focusedItem={chatFocusedItem}
-        quickPrompts={chatQuickPrompts}
-      />
     </div>
   );
 }

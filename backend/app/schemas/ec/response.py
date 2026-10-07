@@ -93,7 +93,3 @@ class GenerateResultOut(BaseModel):
     elapsed_sec: float = 0.0
     model: str = ""
 
-class ChatOut(BaseModel):
-    answer: str
-    elapsed_sec: float
-    model: str

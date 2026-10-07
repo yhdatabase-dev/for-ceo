@@ -9,7 +9,6 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from app.api.routers.ec import analyze as ec_analyze
-from app.api.routers.ec import chat as ec_chat
 from app.api.routers.ec import classify as ec_classify
 from app.api.routers.ec import document as ec_document
 from app.api.routers.ec import extract as ec_extract
@@ -42,7 +41,6 @@ api_router.include_router(ec_analyze.router, prefix="/ec")
 api_router.include_router(ec_validate_field.router, prefix="/ec")
 api_router.include_router(ec_generate.router, prefix="/ec")
 api_router.include_router(ec_document.router, prefix="/ec")
-api_router.include_router(ec_chat.router, prefix="/ec")
 
 # ── 검토 이력 · 노무 주제 · 방문 추적 ──
 api_router.include_router(history_entries.router, prefix="/history")

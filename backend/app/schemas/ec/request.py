@@ -75,24 +75,3 @@ class GenerateDocxIn(BaseModel):
         description="다운로드 파일명",
     )
 
-# ─────────────────────────────────────────────
-# 5) POST /api/cgr/ec/chat-messages — 대화형 챗봇 (SFR-001)
-# ─────────────────────────────────────────────
-class ChatHistoryTurn(BaseModel):
-    role: str  # "user" | "assistant"
-    content: str
-
-class ChatIn(BaseModel):
-    message: str = Field(..., description="사용자 질문 (자연어)")
-    analysis_result: dict[str, Any] | None = Field(
-        default=None,
-        description="현재 사용자가 보고 있는 분석 결과 (있으면 컨텍스트로 활용)",
-    )
-    focused_item: str | None = Field(
-        default=None,
-        description="사용자가 캐러셀에서 보고 있는 항목명 (예: '임금')",
-    )
-    history: list[ChatHistoryTurn] = Field(
-        default_factory=list,
-        description="이전 대화 (role/content). 최근 6턴까지만 활용.",
-    )

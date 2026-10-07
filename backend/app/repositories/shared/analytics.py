@@ -2,7 +2,7 @@
 
 - app.tb_cntn_rcd     접속 기록 : 익명 방문 핑
 - app.tb_file_uld_rcd 파일 업로드 기록 : 업로드 메타 (원본 파일은 저장하지 않음)
-- ai.tb_llm_clot_log  LLM 호출 로그 : 챗봇·검토 입력/출력 (PII 는 호출 측에서 마스킹)
+- ai.tb_llm_clot_log  LLM 호출 로그 : 검토 입력/출력 (PII 는 호출 측에서 마스킹)
 
 방문자 식별자는 익명 uuid·해시 — 원시 IP·개인정보는 저장하지 않는다.
 기록 실패는 사용자 흐름을 막지 않도록 조용히 넘긴다.
@@ -65,7 +65,7 @@ def add_upload(
         return None
 
 
-# ─── LLM 호출 로그 (챗봇·검토 Input/Output) ─────
+# ─── LLM 호출 로그 (검토 Input/Output) ─────
 def log_interaction(
     *,
     kind: str,

@@ -15,12 +15,11 @@ import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-import { postEcChat, postEcGenerate } from '@/features/ec/api';
+import { postEcGenerate } from '@/features/ec/api';
 import { ApiCallError } from '@/lib/api/client';
 import type {
   EcAnalysisItem,
   EcAnalysisResult,
-  EcChatTurn,
   EcStructuredData,
 } from '@/lib/api/types';
 import SiteHeader from '@/components/layout/SiteHeader';
@@ -96,15 +95,12 @@ export default function EcResultPage(props: { params: Promise<{ caseUid: string 
   /** "제안 모두 반영" 결과 안내 메시지 (잠깐 표시). */
   const [bulkMsg, setBulkMsg] = useState<string | null>(null);
   const bulkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  /** 캐러셀의 현재 활성 항목 인덱스 — ChatPanel 컨텍스트로 사용. */
-  const [activeFindingIndex, setActiveFindingIndex] = useState(0);
   /** 좌(요약 칩·본문 마크) ↔ 우(상세 카드) 동기화용 focus 인덱스 (0-based, sortedResults 기준). */
   const [focusedIndex, setFocusedIndex] = useState(0);
   // 핸들러는 안정적 identity 로 — 안 그러면 자식 effect 가 매 렌더 재실행돼
   // scrollIntoView 가 반복 호출되며 화면이 떨린다(버벅임).
   const handleFocus = useCallback((i: number) => {
     setFocusedIndex(i);
-    setActiveFindingIndex(i);
   }, []);
   /** 보기 모드 — 'split'(나란히: 좌 계약서+우 상세) / 'wide'(검토 보기: 전체폭+거터). */
   const [reviewMode, setReviewMode] = useState<'split' | 'wide'>('split');
@@ -481,14 +477,6 @@ export default function EcResultPage(props: { params: Promise<{ caseUid: string 
               </p>
             </div>
           </section>
-        </div>
-
-        {/* 결과 페이지 어디서나 우하단에 떠 있는 챗봇 — SFR-001 */}
-        <div className="noPrint">
-          <ChatPanel
-            analysis={analysis}
-            focusedItem={violations[activeFindingIndex]?.항목}
-          />
         </div>
       </div>
     </main>
@@ -1519,7 +1507,7 @@ interface FindingCarouselProps {
   initialOverrides: Record<string, string>;
   /** 외부 focus(좌측 칩·본문) 와 동기화할 인덱스. 바뀌면 캐러셀이 그 항목으로 이동. */
   controlledIndex?: number;
-  /** 활성 항목 인덱스를 부모에게 알림 — ChatPanel·좌측 focus 동기화용. */
+  /** 활성 항목 인덱스를 부모에게 알림 — 좌측 focus 동기화용. */
   onIndexChange?: (index: number) => void;
 }
 
@@ -2304,363 +2292,9 @@ function emphasize(input: string): ReactNode[] {
   return out;
 }
 
-/* ════════════════════════════════════════════════════════
- * ChatPanel — 결과 페이지 우하단 floating 챗봇 (SFR-001)
- * ════════════════════════════════════════════════════════ */
-
-interface ChatPanelProps {
-  analysis: EcAnalysisResult;
-  focusedItem?: string;
-}
-
-interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-/**
- * assistant 응답에서 "관련 법령: ..." 한 줄을 본문과 분리.
- * 본문 끝의 그 줄을 떼서, 법령 인용을 칩으로 따로 렌더할 수 있게.
- */
-function parseAssistantMessage(text: string): {
-  body: string;
-  laws: string[];
-} {
-  if (!text) return { body: '', laws: [] };
-  // 마지막 부근의 "관련 법령:" 또는 "관련법령:" 줄 캡처
-  const m = text.match(/(?:^|\n)\s*관련\s*법령\s*[:：]\s*(.+?)\s*$/);
-  if (!m) return { body: text.trim(), laws: [] };
-  const body = text.replace(m[0], '').trim();
-  const laws = splitLawCitations(m[1]);
-  return { body, laws };
-}
-
 /**
  * 마크다운 강조 부호(`**`·`*`·`__`·`_`) 제거 — LawHover 칩·URL 에 raw 가 새 나가지 않게.
  */
 function stripMarkdownChars(s: string): string {
   return s.replace(/\*+|_+/g, '').replace(/\s+/g, ' ').trim();
-}
-
-/**
- * "근로기준법 제55조, 제17조 제1항 제5호" 같이 콤마로 묶인 인용을
- * 칩 단위로 분리. 두 번째 토큰부터 법령명 없으면 직전 법령명 prefix 부착.
- */
-function splitLawCitations(s: string): string[] {
-  const cleaned = stripMarkdownChars(s);
-  const parts = cleaned
-    .split(/[,;／]\s*|\s+\/\s+/)
-    .map((t) => stripMarkdownChars(t))
-    .filter((t) => t.length > 0);
-  const out: string[] = [];
-  let currentLaw = '';
-  const LAW_HEAD = /^(.+?(?:법률|법))/;
-  for (const p of parts) {
-    const lm = p.match(LAW_HEAD);
-    if (lm) {
-      currentLaw = lm[1];
-      out.push(p);
-    } else if (currentLaw && /^제\d+조/.test(p)) {
-      out.push(`${currentLaw} ${p}`);
-    } else if (p) {
-      out.push(p);
-    }
-  }
-  return out;
-}
-
-/**
- * 챗봇 답변용 자동 강조 패턴 — LLM 이 ** 마크다운을 빼먹어도 핵심 키워드는 굵게.
- * 결과 페이지의 emphasize 보다 좁게 — 짧은 답변에 과강조 방지.
- */
-const CHAT_AUTO_EMPHASIZE = new RegExp(
-  [
-    // 법령·조문
-    '근로기준법\\s*제\\d+조(?:\\s*제\\d+항)?(?:\\s*제\\d+호)?',
-    '기간제\\s*및\\s*단시간근로자\\s*보호\\s*등에\\s*관한\\s*법률\\s*제\\d+조',
-    '최저임금법\\s*제\\d+조(?:\\s*제\\d+항)?',
-    '근로자퇴직급여\\s*보장법\\s*제\\d+조',
-    // 수치·기간·금액
-    '\\d+(?:,\\d{3})+\\s*원',
-    '\\d{1,4}\\s*년\\s*\\d{1,2}\\s*월\\s*\\d{1,2}\\s*일',
-    '\\d{1,2}\\s*시\\s*\\d{1,2}\\s*분',
-    '\\d{1,3}\\s*시간',
-    '\\d{1,3}\\s*일',
-    '\\d{1,3}\\s*개월',
-    '\\d{1,3}\\s*%',
-    // 사업장 규모·근로자 유형
-    '5\\s*인\\s*이상',
-    '5\\s*인\\s*미만',
-    '1\\s*주\\s*\\d{1,3}\\s*시간',
-    // 결론·판정 표현
-    '위반\\s*가능성(?:이\\s*있어요|이\\s*있습니다|이\\s*있음)?',
-    '검토가?\\s*필요(?:해요|합니다|함)?',
-    '필수\\s*기재(?:사항)?',
-    '서면\\s*명시(?:의무)?',
-    '서면\\s*교부(?:\\s*의무)?',
-    '미기재',
-    '누락(?:되어|되었|된)?\\s*있?',
-    '보완(?:이)?\\s*필요(?:해요|합니다)?',
-  ]
-    .map((p) => `(?:${p})`)
-    .join('|'),
-  'g',
-);
-
-/** 단일 텍스트 조각에 자동 강조 패턴 적용 → ReactNode[]. */
-function autoBoldKeywords(text: string, keyPrefix: string): ReactNode[] {
-  if (!text) return [];
-  const out: ReactNode[] = [];
-  const re = new RegExp(CHAT_AUTO_EMPHASIZE.source, CHAT_AUTO_EMPHASIZE.flags);
-  let last = 0;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(text)) !== null) {
-    if (m.index > last) {
-      out.push(
-        <Fragment key={`${keyPrefix}-t-${last}`}>
-          {text.slice(last, m.index)}
-        </Fragment>,
-      );
-    }
-    out.push(
-      <strong key={`${keyPrefix}-a-${m.index}`}>{m[0]}</strong>,
-    );
-    last = m.index + m[0].length;
-  }
-  if (last < text.length) {
-    out.push(
-      <Fragment key={`${keyPrefix}-t-${last}`}>{text.slice(last)}</Fragment>,
-    );
-  }
-  return out;
-}
-
-/**
- * 마크다운 `**bold**` 를 `<strong>` 으로 변환 + 비-bold 구간엔 자동 강조 패턴 적용.
- * LLM 이 ** 로 굵게 한 부분은 그대로, 빠뜨린 핵심 키워드는 자동으로 굵게.
- */
-function renderMarkdownBold(text: string): ReactNode[] {
-  if (!text) return [];
-  const out: ReactNode[] = [];
-  const re = /\*\*([^*]+)\*\*/g;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  let segIdx = 0;
-  while ((m = re.exec(text)) !== null) {
-    if (m.index > last) {
-      const seg = text.slice(last, m.index);
-      out.push(
-        <Fragment key={`s-${segIdx++}`}>
-          {autoBoldKeywords(seg, `s${segIdx}`)}
-        </Fragment>,
-      );
-    }
-    out.push(<strong key={`b-${m.index}`}>{m[1]}</strong>);
-    last = m.index + m[0].length;
-  }
-  if (last < text.length) {
-    const seg = text.slice(last);
-    out.push(
-      <Fragment key={`s-${segIdx++}`}>
-        {autoBoldKeywords(seg, `s${segIdx}`)}
-      </Fragment>,
-    );
-  }
-  return out;
-}
-
-/** assistant 메시지 버블 — 본문 + (선택) 관련 법령 LawHover 칩 줄. */
-function ChatAssistantBubble({ content }: { content: string }) {
-  const { body, laws } = useMemo(
-    () => parseAssistantMessage(content),
-    [content],
-  );
-  return (
-    <div className={styles.chatBubble}>
-      <div className={styles.chatBubbleBody}>{renderMarkdownBold(body)}</div>
-      {laws.length > 0 && (
-        <div className={styles.chatBubbleLaws}>
-          <span className={styles.chatBubbleLawsLabel}>관련 법령</span>
-          {laws.map((l, i) => (
-            <LawHover key={`${l}-${i}`} lawName={l} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/** 자주 묻는 질문 빠른 칩 — 사용자가 입력 부담 없이 시작. */
-const QUICK_PROMPTS = [
-  '이 항목이 왜 부적절한가요?',
-  '주휴수당이 뭔가요?',
-  '연차유급휴가는 언제부터 발생하나요?',
-  '퇴직금 계산은 어떻게 해요?',
-];
-
-function ChatPanel({ analysis, focusedItem }: ChatPanelProps) {
-  const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState('');
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const listRef = useRef<HTMLDivElement | null>(null);
-
-  // 새 메시지 추가될 때 자동 스크롤
-  useEffect(() => {
-    if (listRef.current) {
-      listRef.current.scrollTop = listRef.current.scrollHeight;
-    }
-  }, [messages, pending]);
-
-  const sendMessage = async (text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed || pending) return;
-    setError(null);
-    const userTurn: ChatMessage = { role: 'user', content: trimmed };
-    const nextMessages = [...messages, userTurn];
-    setMessages(nextMessages);
-    setInput('');
-    setPending(true);
-    try {
-      // history 는 user/assistant 가 교차하는 형식 — 컴포넌트 state 그대로 전달
-      const history: EcChatTurn[] = nextMessages.slice(0, -1).map((m) => ({
-        role: m.role,
-        content: m.content,
-      }));
-      const out = await postEcChat(trimmed, {
-        analysisResult: analysis,
-        focusedItem,
-        history,
-      });
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: out.answer },
-      ]);
-    } catch (e) {
-      const msg =
-        e instanceof ApiCallError
-          ? e.detail
-          : e instanceof Error
-            ? e.message
-            : String(e);
-      setError(msg);
-    } finally {
-      setPending(false);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    void sendMessage(input);
-  };
-
-  if (!open) {
-    return (
-      <button
-        type="button"
-        className={styles.chatFab}
-        onClick={() => setOpen(true)}
-        aria-label="노동법 챗봇 열기"
-      >
-        💬
-        <span className={styles.chatFabLabel}>물어보기</span>
-      </button>
-    );
-  }
-
-  return (
-    <aside className={styles.chatPanel} aria-label="노동법 챗봇">
-      <header className={styles.chatHead}>
-        <span className={styles.chatHeadTitle}>노동법 도우미</span>
-        {focusedItem && (
-          <span className={styles.chatHeadContext} title="현재 본 항목">
-            「{focusedItem}」
-          </span>
-        )}
-        <button
-          type="button"
-          className={styles.chatClose}
-          onClick={() => setOpen(false)}
-          aria-label="닫기"
-        >
-          ✕
-        </button>
-      </header>
-
-      <div className={styles.chatBody} ref={listRef}>
-        {messages.length === 0 && (
-          <div className={styles.chatEmpty}>
-            <p className={styles.chatEmptyTitle}>
-              근로계약서 검토 결과에 대해 무엇이든 물어보세요.
-            </p>
-            <p className={styles.chatEmptyHint}>
-              현재 본 항목 ({focusedItem || '없음'}) 의 분석 결과를 함께 보고 답해 드려요.
-            </p>
-            <div className={styles.chatQuickRow}>
-              {QUICK_PROMPTS.map((q) => (
-                <button
-                  key={q}
-                  type="button"
-                  className={styles.chatQuickChip}
-                  onClick={() => void sendMessage(q)}
-                  disabled={pending}
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`${styles.chatMsg} ${styles[`chatMsg_${m.role}`]}`}
-          >
-            {m.role === 'assistant' ? (
-              <ChatAssistantBubble content={m.content} />
-            ) : (
-              <div className={styles.chatBubble}>{m.content}</div>
-            )}
-          </div>
-        ))}
-
-        {pending && (
-          <div className={`${styles.chatMsg} ${styles.chatMsg_assistant}`}>
-            <div className={`${styles.chatBubble} ${styles.chatBubbleTyping}`}>
-              <span className={styles.chatTypingDot} />
-              <span className={styles.chatTypingDot} />
-              <span className={styles.chatTypingDot} />
-            </div>
-          </div>
-        )}
-
-        {error && (
-          <div className={styles.chatError}>
-            <strong>오류:</strong> {error}
-          </div>
-        )}
-      </div>
-
-      <form className={styles.chatInputRow} onSubmit={handleSubmit}>
-        <input
-          type="text"
-          className={styles.chatInput}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="질문을 입력하세요 (예: 주휴수당이 뭔가요?)"
-          disabled={pending}
-          autoFocus
-        />
-        <button
-          type="submit"
-          className={styles.chatSend}
-          disabled={pending || !input.trim()}
-        >
-          {pending ? '…' : '전송'}
-        </button>
-      </form>
-    </aside>
-  );
 }

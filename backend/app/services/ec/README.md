@@ -12,7 +12,6 @@
 4. generate    LLM — 표준 계약서 본문 생성
 ```
 
-추가: `chat` — 결과 후속 챗봇.
 
 ## 파일
 
@@ -24,7 +23,6 @@
 | `verdict.py` | 결과 후처리 룰 |
 | `services/structure.py` | 8섹션 구조화 |
 | `services/analyze.py` | 33매핑 분석 |
-| `services/chat.py` | 챗봇 |
 | `services/generate.py` | 표준 계약서 생성 |
 
 ## 진입

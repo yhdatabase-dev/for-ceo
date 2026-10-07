@@ -11,7 +11,6 @@
 **적용 위치** (LLM 호출 직전):
 - `cgr.ec.services.analyze.run()` — 근로계약서 분석
 - `cgr.ec.services.structure.run()` — 8섹션 구조화
-- `cgr.ec.services.chat.run()` — 후속 챗봇
 - `cgr.ec.services.generate.run()` — 표준 계약서 생성
 """
 from __future__ import annotations
