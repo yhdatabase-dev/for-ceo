@@ -1,3 +1,17 @@
+#
+# 공용 로깅 — print(file=sys.stderr) 를 대체하는 구조화 로거.
+#
+# << 개정이력(Modification Information) >>
+# 수정일          수정자      수정 내용
+# ----------      ------      ---------------------------
+# 2026.07.08      kimzion77   최초 생성
+# 2026.10.02      이시영      구조 이행 (backend/cgr → backend/app)
+# 2026.10.07      이시영      환경설정 통합 (루트 .env·config.py), mock LLM 추가
+# 2026.10.07      이시영      검토번호 서버 발급, 변경 사유 주석 추가
+#
+# Author: kimzion77
+# Since: 2026.07.08
+#
 """공용 로깅 — print(file=sys.stderr) 를 대체하는 구조화 로거.
 
 원칙

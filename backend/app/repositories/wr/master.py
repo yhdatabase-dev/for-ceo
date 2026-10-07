@@ -1,3 +1,15 @@
+#
+# 취업규칙 마스터 DB (xlsx) 로더 — 단일 진실원(SSoT).
+#
+# << 개정이력(Modification Information) >>
+# 수정일          수정자      수정 내용
+# ----------      ------      ---------------------------
+# 2026.05.28      kimzion77   최초 생성
+# 2026.10.02      이시영      구조 이행 (backend/cgr → backend/app)
+#
+# Author: kimzion77
+# Since: 2026.05.28
+#
 """취업규칙 마스터 DB (xlsx) 로더 — 단일 진실원(SSoT).
 
 - 경로: 2026판 우선 → 2025판 fallback

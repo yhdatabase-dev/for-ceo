@@ -1,6 +1,20 @@
 /**
  * 노무사회 주제 코퍼스 — 백엔드 lazy fetch.
  *
+ * << 개정이력(Modification Information) >>
+ * 수정일          수정자      수정 내용
+ * ----------      ------      ---------------------------
+ * 2026.05.28      kimzion77   최초 생성
+ * 2026.10.06      이시영      API 경로 표준화 (/api/cgr)
+ * 2026.10.07      이시영      화면 경로 /cgr·features 구조 이동, sync API 삭제, 업로드 원본 미저장
+ * 2026.10.07      이시영      검토번호 서버 발급, 변경 사유 주석 추가
+ *
+ * Author: kimzion77
+ * Since: 2026.05.28
+ */
+/**
+ * 노무사회 주제 코퍼스 — 백엔드 lazy fetch.
+ *
  * 개발표준정의서 Directory 구성도: 업무 기능은 features/<도메인>/ (기존: lib/api/topics.ts)
  * 개발표준정의서 API 엔드포인트: GET /api/cgr/topics/sections (기존: /api/v1/topics/corpus)
  *

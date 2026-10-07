@@ -1,3 +1,17 @@
+#
+# 마크다운 리포트 생성.
+#
+# << 개정이력(Modification Information) >>
+# 수정일          수정자      수정 내용
+# ----------      ------      ---------------------------
+# 2026.05.28      kimzion77   최초 생성
+# 2026.10.02      이시영      CLI 리포터 5-Bucket 이모지 상수 복원
+# 2026.10.02      이시영      구조 이행 (backend/cgr → backend/app)
+# 2026.10.02      이시영      구조 조정 (web/ai 파트 디렉터리 → 도메인 단일 디렉터리)
+#
+# Author: kimzion77
+# Since: 2026.05.28
+#
 """마크다운 리포트 생성."""
 from __future__ import annotations
 

@@ -1,3 +1,19 @@
+#
+# 가변 데이터 디렉터리 해석 — 로컬은 backend/data, 운영(Fly)은 /data(영구 볼륨).
+#
+# << 개정이력(Modification Information) >>
+# 수정일          수정자      수정 내용
+# ----------      ------      ---------------------------
+# 2026.06.22      kimzion77   최초 생성
+# 2026.10.02      이시영      구조 이행 (backend/cgr → backend/app)
+# 2026.10.06      이시영      PostgreSQL 전환, 노무가이드 삭제
+# 2026.10.07      이시영      환경설정 통합 (루트 .env·config.py), mock LLM 추가
+# 2026.10.07      이시영      화면 경로 /cgr·features 구조 이동, sync API 삭제, 업로드 원본 미저장
+# 2026.10.07      이시영      검토번호 서버 발급, 변경 사유 주석 추가
+#
+# Author: kimzion77
+# Since: 2026.06.22
+#
 """가변 데이터 디렉터리 해석 — 로컬은 backend/data, 운영(Fly)은 /data(영구 볼륨).
 
 env `CGR_DATA_DIR` 로 override. 편집형 프롬프트가

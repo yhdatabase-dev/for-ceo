@@ -1,3 +1,16 @@
+#
+# Finding 집계 → 부적정 판정.
+#
+# << 개정이력(Modification Information) >>
+# 수정일          수정자      수정 내용
+# ----------      ------      ---------------------------
+# 2026.05.28      kimzion77   최초 생성
+# 2026.10.02      이시영      구조 이행 (backend/cgr → backend/app)
+# 2026.10.02      이시영      구조 조정 (web/ai 파트 디렉터리 → 도메인 단일 디렉터리)
+#
+# Author: kimzion77
+# Since: 2026.05.28
+#
 """Finding 집계 → 부적정 판정.
 
 분류 체계 (status 우선 + severity 보조):

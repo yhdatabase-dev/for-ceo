@@ -1,3 +1,15 @@
+#
+# hwpx(zip + xml) → plaintext.
+#
+# << 개정이력(Modification Information) >>
+# 수정일          수정자      수정 내용
+# ----------      ------      ---------------------------
+# 2026.05.28      kimzion77   최초 생성
+# 2026.10.02      이시영      구조 이행 (backend/cgr → backend/app)
+#
+# Author: kimzion77
+# Since: 2026.05.28
+#
 """hwpx(zip + xml) → plaintext.
 
 hwpx 는 OOXML 유사 zip 패키지. Contents/section*.xml 의 <hp:p>·<hp:t> 텍스트 추출.

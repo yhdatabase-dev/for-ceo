@@ -1,3 +1,15 @@
+#
+# HWP에서 발견된 본문 변경 7건을 마스터 DB의 D/K/L 컬럼에 반영.
+#
+# << 개정이력(Modification Information) >>
+# 수정일          수정자      수정 내용
+# ----------      ------      ---------------------------
+# 2026.05.28      kimzion77   최초 생성
+# 2026.10.02      이시영      구조 이행 (backend/cgr → backend/app)
+#
+# Author: kimzion77
+# Since: 2026.05.28
+#
 """HWP에서 발견된 본문 변경 7건을 마스터 DB의 D/K/L 컬럼에 반영.
 
 대상 (compare_body_2026.py 분석 결과):

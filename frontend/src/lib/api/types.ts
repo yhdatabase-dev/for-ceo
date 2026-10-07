@@ -1,6 +1,20 @@
 /**
  * 백엔드 FastAPI 응답 타입 — `mvp/cgr/api/schemas.py` 와 1:1 매핑.
  *
+ * << 개정이력(Modification Information) >>
+ * 수정일          수정자      수정 내용
+ * ----------      ------      ---------------------------
+ * 2026.05.28      kimzion77   최초 생성
+ * 2026.10.06      이시영      API 경로 표준화 (/api/cgr)
+ * 2026.10.07      이시영      챗봇 기능 삭제
+ * 2026.10.07      이시영      검토번호 서버 발급, 변경 사유 주석 추가
+ *
+ * Author: kimzion77
+ * Since: 2026.05.28
+ */
+/**
+ * 백엔드 FastAPI 응답 타입 — `mvp/cgr/api/schemas.py` 와 1:1 매핑.
+ *
  * 프론트 `types/review.ts::Finding` 으로의 변환은 `lib/api/mappers.ts` 에서.
  */
 

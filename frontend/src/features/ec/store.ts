@@ -1,6 +1,18 @@
 /**
  * 근로계약서 검토 상태 — 검토 건(features/history/store)의 ec 단계 상태를 갱신한다.
  *
+ * << 개정이력(Modification Information) >>
+ * 수정일          수정자      수정 내용
+ * ----------      ------      ---------------------------
+ * 2026.10.07      이시영      최초 생성
+ * 2026.10.07      이시영      검토번호 서버 발급, 변경 사유 주석 추가
+ *
+ * Author: 이시영
+ * Since: 2026.10.07
+ */
+/**
+ * 근로계약서 검토 상태 — 검토 건(features/history/store)의 ec 단계 상태를 갱신한다.
+ *
  * 개발표준정의서 프론트엔드 식별자: 전역 상태는 도메인별 features/<domain>/store.ts, 전역 단일 스토어를 두지 않는다 (기존: lib/reviewStore.ts)
  */
 import { ensureCaseEntry, memory, persist, type CaseEntry } from '@/features/history/store';

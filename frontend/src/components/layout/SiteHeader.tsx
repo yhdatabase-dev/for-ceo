@@ -1,3 +1,13 @@
+/**
+ * << 개정이력(Modification Information) >>
+ * 수정일          수정자      수정 내용
+ * ----------      ------      ---------------------------
+ * 2026.05.28      kimzion77   최초 생성
+ * 2026.10.06      이시영      PostgreSQL 전환, 노무가이드 삭제
+ *
+ * Author: kimzion77
+ * Since: 2026.05.28
+ */
 import Link from 'next/link';
 
 import Icon from '@/components/ui/Icon';

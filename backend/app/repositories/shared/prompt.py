@@ -1,3 +1,14 @@
+#
+# 프롬프트 override 조회 — datadir.prompts_dir()/<key>.txt 가 있으면 그 내용, 없으면 코드 기본값.
+#
+# << 개정이력(Modification Information) >>
+# 수정일          수정자      수정 내용
+# ----------      ------      ---------------------------
+# 2026.10.02      이시영      최초 생성 (구조 이행 — 기존 backend/cgr 코드를 분리·이동)
+#
+# Author: 이시영
+# Since: 2026.10.02
+#
 """프롬프트 override 조회 — datadir.prompts_dir()/<key>.txt 가 있으면 그 내용, 없으면 코드 기본값."""
 from __future__ import annotations
 

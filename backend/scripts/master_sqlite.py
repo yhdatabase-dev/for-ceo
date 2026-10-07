@@ -1,3 +1,15 @@
+#
+# 시드용 SQLite 마스터 DB(`data/master.db`) helper.
+#
+# << 개정이력(Modification Information) >>
+# 수정일          수정자      수정 내용
+# ----------      ------      ---------------------------
+# 2026.10.06      이시영      최초 생성
+# 2026.10.06      이시영      주석 정리
+#
+# Author: 이시영
+# Since: 2026.10.06
+#
 """시드용 SQLite 마스터 DB(`data/master.db`) helper.
 
 슬롯 yaml·코퍼스·임금 마스터를 SQLite 로 모으는 seed 스크립트 전용이다.

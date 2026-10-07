@@ -1,6 +1,18 @@
 /**
  * 백엔드 응답 → 프론트 도메인 타입 매핑.
  *
+ * << 개정이력(Modification Information) >>
+ * 수정일          수정자      수정 내용
+ * ----------      ------      ---------------------------
+ * 2026.05.28      kimzion77   최초 생성
+ * 2026.10.07      이시영      화면 경로 /cgr·features 구조 이동, sync API 삭제, 업로드 원본 미저장
+ *
+ * Author: kimzion77
+ * Since: 2026.05.28
+ */
+/**
+ * 백엔드 응답 → 프론트 도메인 타입 매핑.
+ *
  * 백엔드 `FindingOut` 에 부족한 필드(title / standard / laws / topics)는
  * 합리적 fallback 으로 채운다. 백엔드 확장 시 fallback 분기 제거.
  */

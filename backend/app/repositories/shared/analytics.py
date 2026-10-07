@@ -1,3 +1,20 @@
+#
+# 사용량·업로드·LLM 호출 기록 저장소 — PostgreSQL.
+#
+# << 개정이력(Modification Information) >>
+# 수정일          수정자      수정 내용
+# ----------      ------      ---------------------------
+# 2026.06.22      kimzion77   최초 생성
+# 2026.10.02      이시영      구조 이행 (backend/cgr → backend/app)
+# 2026.10.06      이시영      PostgreSQL 전환, 노무가이드 삭제
+# 2026.10.06      이시영      주석 정리
+# 2026.10.07      이시영      화면 경로 /cgr·features 구조 이동, sync API 삭제, 업로드 원본 미저장
+# 2026.10.07      이시영      챗봇 기능 삭제
+# 2026.10.07      이시영      검토번호 서버 발급, 변경 사유 주석 추가
+#
+# Author: kimzion77
+# Since: 2026.06.22
+#
 """사용량·업로드·LLM 호출 기록 저장소 — PostgreSQL.
 
 테이블정의서 app.tb_cntn_rcd · app.tb_file_uld_rcd · ai.tb_llm_clot_log 에 기록 (기존: SQLite events.db).

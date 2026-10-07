@@ -1,6 +1,18 @@
 /**
  * 사업장 정보 라벨 호버 문구.
  *
+ * << 개정이력(Modification Information) >>
+ * 수정일          수정자      수정 내용
+ * ----------      ------      ---------------------------
+ * 2026.05.28      kimzion77   최초 생성
+ * 2026.10.07      이시영      화면 경로 /cgr·features 구조 이동, sync API 삭제, 업로드 원본 미저장
+ *
+ * Author: kimzion77
+ * Since: 2026.05.28
+ */
+/**
+ * 사업장 정보 라벨 호버 문구.
+ *
  * 개발표준정의서 File Name: 컴포넌트 파일은 PascalCase (기존: workplaceHelp.tsx)
  *
  * 백엔드 `cgr/web/review_app/help_text.py` 의 풀이를 React JSX 로 옮긴 것.

@@ -1,3 +1,15 @@
+/**
+ * << 개정이력(Modification Information) >>
+ * 수정일          수정자      수정 내용
+ * ----------      ------      ---------------------------
+ * 2026.05.28      kimzion77   최초 생성
+ * 2026.10.01      이시영      버전 정렬 (Python 3.14.7·Node 24.21.0·Next 16.3.5)
+ * 2026.10.07      이시영      화면 경로 /cgr·features 구조 이동, sync API 삭제, 업로드 원본 미저장
+ * 2026.10.07      이시영      검토번호 서버 발급, 변경 사유 주석 추가
+ *
+ * Author: kimzion77
+ * Since: 2026.05.28
+ */
 'use client';
 
 // 개발표준정의서 API 엔드포인트(화면 경로): 도메인 wr 아래로 이동 — 화면 URL /cgr/wr/[caseUid]/findings/[findingId]
